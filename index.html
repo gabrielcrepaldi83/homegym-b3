@@ -14,11 +14,13 @@
       --border: #2a303b; --text: #f3f4f6; --muted: #9ca3af;
       --gold: #e5a93c; --gold-bg: rgba(229,169,60,.14);
       --green: #10b981; --green-bg: rgba(16,185,129,.14);
+      --blue: #60a5fa; --blue-bg: rgba(96,165,250,.14);
+      --danger: #ef4444;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       margin: 0; font-family: system-ui, -apple-system, sans-serif;
-      background: var(--bg); color: var(--text); padding-bottom: 115px;
+      background: var(--bg); color: var(--text); padding-bottom: 125px;
     }
 
     /* Oculta selo/widget injetado pelo Netlify Drop sem conta */
@@ -36,7 +38,7 @@
       position: sticky; top: 0; z-index: 20;
       background: rgba(13,15,18,.95); backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--border);
-      padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px;
     }
     .brand { display: flex; align-items: center; gap: 10px; }
     .brand-icon {
@@ -46,6 +48,13 @@
     }
     .brand h1 { margin: 0; font-size: 14px; font-weight: 800; }
     .brand p { margin: 2px 0 0; font-size: 11px; color: var(--muted); }
+    .header-actions { display: flex; align-items: center; gap: 6px; }
+    .session-pill {
+      background: var(--elev); border: 1px solid var(--border);
+      color: var(--text); border-radius: 999px; padding: 5px 9px;
+      font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums;
+      display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
+    }
     .wrap { max-width: 680px; margin: 0 auto; padding: 14px 16px; }
     .tabs { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
     .tab {
@@ -84,6 +93,14 @@
     .tag.angle {
       color: var(--gold); background: var(--gold-bg); border-color: rgba(229,169,60,.35); font-weight: 600;
     }
+    .tag.max24 {
+      color: #fca5a5; background: rgba(239,68,68,.15); border-color: rgba(239,68,68,.4); font-weight: 700;
+    }
+    .max-tip {
+      font-size: 11px; color: #fecaca; background: rgba(239,68,68,.1);
+      border: 1px solid rgba(239,68,68,.3); border-radius: 8px;
+      padding: 6px 9px; margin-top: 7px; line-height: 1.35;
+    }
     .rest-edit {
       display: inline-flex; align-items: center; gap: 4px;
       font-size: 11px; color: var(--text); background: var(--elev);
@@ -98,29 +115,32 @@
       background: #111419; border: 1px solid #222731; border-radius: 9px; padding: 8px 10px;
     }
     .set {
-      display: grid; grid-template-columns: 36px 1fr 1fr 40px; gap: 6px;
+      display: grid; grid-template-columns: 32px 1fr 1fr 34px 38px; gap: 5px;
       align-items: center; margin-top: 6px; background: #111419;
-      padding: 6px 8px; border-radius: 10px; border: 1px solid #222731;
+      padding: 6px 7px; border-radius: 10px; border: 1px solid #222731;
     }
     .set.done { border-color: rgba(16,185,129,.45); background: rgba(16,185,129,.06); }
-    select, input, button {
+    select, input, button, textarea {
       background: var(--elev); color: var(--text); border: 1px solid var(--border);
       border-radius: 8px; padding: 7px 6px; font-size: 13px; font-weight: 600;
+      font-family: inherit;
     }
     button { cursor: pointer; }
+    .btn-mini { padding: 6px 4px; font-size: 11px; font-weight: 800; text-align: center; }
     .btn-gold { background: var(--gold-bg); color: var(--gold); border-color: rgba(229,169,60,.45); }
     .btn-finish {
-      width: 100%; margin-top: 14px; padding: 14px; border-radius: 14px;
+      width: 100%; margin-top: 12px; padding: 14px; border-radius: 14px;
       background: var(--green); border: none; color: #051b11;
       font-size: 15px; font-weight: 800; display: flex; align-items: center;
       justify-content: center; gap: 8px;
     }
     .chk.done { background: var(--green); color: #08120b; border-color: var(--green); }
     .timer {
-      position: fixed; bottom: 76px; left: 50%; transform: translateX(-50%);
+      position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%);
       width: calc(100% - 24px); max-width: 656px; background: #181d25;
-      border: 1px solid var(--gold); border-radius: 14px; padding: 10px 14px;
+      border: 1px solid var(--gold); border-radius: 14px; padding: 9px 14px;
       display: none; justify-content: space-between; align-items: center; z-index: 30;
+      box-shadow: 0 8px 24px rgba(0,0,0,.55);
     }
     .timer.show { display: flex; }
     .t-num { font-size: 20px; font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums; }
@@ -137,7 +157,7 @@
     .nav-item.active { background: var(--gold-bg); color: var(--gold); }
     .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
     .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
-    .stat-val { font-size: 20px; font-weight: 800; color: var(--gold); margin-top: 4px; }
+    .stat-val { font-size: 19px; font-weight: 800; color: var(--gold); margin-top: 4px; }
     .hist-item { background: #111419; border: 1px solid #222731; border-radius: 10px; padding: 10px; margin-top: 8px; }
     .sub-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 4px; margin-bottom: 14px; }
     .sub-tab { background: transparent; border: none; color: var(--muted); padding: 9px 8px; border-radius: 9px; font-size: 12px; font-weight: 700; }
@@ -146,11 +166,16 @@
     .field label { display: block; font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
     .field input { width: 100%; text-align: left; padding: 9px 10px; }
     .delta { font-size: 11px; font-weight: 700; margin-top: 2px; color: var(--green); }
+    .delta.total { color: var(--blue); }
     .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
     .chip { font-size: 11px; padding: 5px 9px; border-radius: 999px; }
     .chip.active { background: var(--gold); color: #111; border-color: var(--gold); }
     .body-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
     .body-pill { font-size: 11px; background: var(--elev); border: 1px solid var(--border); padding: 3px 7px; border-radius: 6px; color: #d1d5db; }
+    .note-box { width: 100%; min-height: 58px; resize: vertical; margin-top: 6px; font-size: 12px; font-weight: 500; padding: 9px 10px; background: #111419; }
+    .note-tag { font-size: 11px; color: #cbd5e1; background: #181d25; border-left: 2px solid var(--gold); padding: 5px 8px; border-radius: 6px; margin-top: 6px; }
+    .goal-bar { height: 6px; background: #232832; border-radius: 999px; overflow: hidden; margin-top: 6px; }
+    .goal-fill { height: 100%; background: var(--green); transition: .25s; }
   </style>
 </head>
 <body>
@@ -162,7 +187,10 @@
         <p>Par 24kg • Full Body 3x</p>
       </div>
     </div>
-    <button class="btn-gold" onclick="installApp()">Instalar App</button>
+    <div class="header-actions">
+      <button class="session-pill" id="sessTimerBtn" onclick="resetSessionClock()" title="Toque para zerar o cronômetro da sessão">⏱ <span id="sessClock">00:00</span></button>
+      <button class="btn-gold" style="padding:6px 9px;font-size:12px" onclick="installApp()">Instalar</button>
+    </div>
   </header>
 
   <div class="wrap">
@@ -187,7 +215,7 @@
 
       <div class="sec-title">
         <span>Base Prioritária (5)</span>
-        <span>Toque em ✓ para descansar</span>
+        <span>✓ inicia descanso</span>
       </div>
       <div id="baseList"></div>
 
@@ -195,6 +223,11 @@
         <span>Opcionais (Tempo / Disposição)</span>
       </div>
       <div id="optList"></div>
+
+      <div class="box" style="margin-top:14px">
+        <label class="meta" for="sessionNote" style="display:block">OBSERVAÇÃO RÁPIDA DA SESSÃO (OPCIONAL)</label>
+        <textarea id="sessionNote" class="note-box" placeholder="Ex.: sono curto, lombar firme, subi carga no supino, usei pausa de 2s..." oninput="saveNote(this.value)"></textarea>
+      </div>
 
       <button class="btn-finish" onclick="finishWorkout()">✓ Concluir e Salvar Treino</button>
       <div style="margin-top:10px;">
@@ -225,7 +258,7 @@
         <div class="stat-grid" id="statsGrid"></div>
         <div class="box">
           <strong style="font-size:15px;display:block">Recordes Pessoais (PRs)</strong>
-          <div class="meta" style="margin-bottom:8px">Maior carga registrada por exercício</div>
+          <div class="meta" style="margin-bottom:8px">Maior carga registrada por exercício (24kg = teto do haltere)</div>
           <div id="prsList"></div>
         </div>
         <div class="box">
@@ -257,6 +290,17 @@
           </div>
 
           <button class="btn-finish" style="margin-top:12px;padding:12px" onclick="saveBodyEntry()">+ Salvar Medição Corporal</button>
+        </div>
+
+        <div class="box">
+          <strong style="font-size:14px;display:block">Metas de Composição Corporal</strong>
+          <div class="meta" style="margin-bottom:8px">Opcional — exibe linha de meta no gráfico e progresso</div>
+          <div class="form-grid" style="grid-template-columns:repeat(3,1fr);margin-top:4px">
+            <div class="field"><label>Meta Peso (kg)</label><input type="number" step="0.1" id="gWeight" placeholder="80.0" onchange="saveGoals()" /></div>
+            <div class="field"><label>Meta Gordura (%)</label><input type="number" step="0.1" id="gFat" placeholder="13.0" onchange="saveGoals()" /></div>
+            <div class="field"><label>Meta Massa Livre</label><input type="number" step="0.1" id="gLean" placeholder="70.0" onchange="saveGoals()" /></div>
+          </div>
+          <div id="goalProgress" style="margin-top:8px"></div>
         </div>
 
         <div class="stat-grid" id="bodyCards"></div>
@@ -446,9 +490,14 @@
     ];
 
     let day = 0, tmr = null, sec = 0, promptEvt = null;
-    let db = JSON.parse(localStorage.getItem("hg_b3_v4") || '{"cyc":1,"alt":{},"s":{},"rests":{},"hist":[]}');
+    let db = JSON.parse(localStorage.getItem("hg_b3_v4") || '{"cyc":1,"alt":{},"s":{},"lastPerf":{},"rests":{},"hist":[],"body":[],"height":0,"notes":{},"goals":{},"sessStart":0}');
     if (!db.rests) db.rests = {};
     if (!db.hist) db.hist = [];
+    if (!db.body) db.body = [];
+    if (!db.notes) db.notes = {};
+    if (!db.goals) db.goals = {};
+    if (!db.lastPerf) db.lastPerf = {};
+    if (!db.sessStart) db.sessStart = Date.now();
 
     window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); promptEvt = e; });
     function installApp() {
@@ -456,6 +505,23 @@
       else alert("Para instalar: toque nos 3 pontinhos do Chrome > Adicionar à tela inicial > Instalar.");
     }
     function save() { localStorage.setItem("hg_b3_v4", JSON.stringify(db)); }
+
+    /* CRONÔMETRO DA SESSÃO TOTAL */
+    function updateSessionClock() {
+      const diff = Math.max(0, Math.floor((Date.now() - (db.sessStart || Date.now())) / 1000));
+      const h = Math.floor(diff / 3600);
+      const m = String(Math.floor((diff % 3600) / 60)).padStart(2, "0");
+      const s = String(diff % 60).padStart(2, "0");
+      document.getElementById("sessClock").textContent = h > 0 ? `${h}:${m}:${s}` : `${m}:${s}`;
+    }
+    function resetSessionClock() {
+      if (confirm("Zerar o cronômetro da sessão atual?")) {
+        db.sessStart = Date.now();
+        save();
+        updateSessionClock();
+      }
+    }
+    setInterval(updateSessionClock, 1000);
 
     function switchNav(tab) {
       document.getElementById("viewTreino").style.display = tab === "treino" ? "block" : "none";
@@ -493,6 +559,10 @@
       db.rests[exId] = (!isNaN(parsed) && parsed > 0) ? parsed : defaultRest;
       save();
     }
+    function saveNote(val) {
+      db.notes[day] = val;
+      save();
+    }
 
     function beep() {
       try {
@@ -509,12 +579,52 @@
       } catch (e) {}
     }
 
-    function upd(id, sIdx, k, v, rest) {
+    function getDefaultSetState(ex, sIdx, defRepsNum) {
+      const prevPerf = db.lastPerf?.[ex.id + "_" + sIdx];
+      if (prevPerf) {
+        return {
+          w: Number(prevPerf.w) || ex.w,
+          r: Number(prevPerf.r) || defRepsNum,
+          d: false
+        };
+      }
+      return { w: ex.w, r: defRepsNum, d: false };
+    }
+
+    function upd(id, sIdx, k, v, rest, defW, defR) {
       const key = id + "_" + sIdx;
-      if (!db.s[key]) db.s[key] = { w: 10, r: 10, d: false };
+      if (!db.s[key]) {
+        const prevPerf = db.lastPerf?.[key];
+        db.s[key] = {
+          w: prevPerf ? Number(prevPerf.w) || defW : defW,
+          r: prevPerf ? Number(prevPerf.r) || defR : defR,
+          d: false
+        };
+      }
       db.s[key][k] = v;
       save();
       if (k === "d" && v) startTimer(rest);
+      render();
+    }
+
+    function copyPrevSet(id, sIdx, defW, defR) {
+      const prevSt = db.s[id + "_" + (sIdx - 1)] || db.lastPerf?.[id + "_" + (sIdx - 1)] || { w: defW, r: defR };
+      const key = id + "_" + sIdx;
+      const cur = db.s[key] || { w: defW, r: defR, d: false };
+      db.s[key] = { w: prevSt.w, r: prevSt.r, d: cur.d };
+      save();
+      render();
+    }
+
+    function bumpRep(id, sIdx, defW, defR, delta) {
+      const key = id + "_" + sIdx;
+      const baseSt = db.s[key] || db.lastPerf?.[key] || { w: defW, r: defR, d: false };
+      db.s[key] = {
+        w: baseSt.w,
+        r: Math.max(1, (parseInt(baseSt.r, 10) || defR) + delta),
+        d: Boolean(baseSt.d)
+      };
+      save();
       render();
     }
 
@@ -555,7 +665,8 @@
           if (db.s[key]) db.s[key].d = false;
         }
       });
-      save(); render();
+      db.sessStart = Date.now();
+      save(); render(); updateSessionClock();
     }
 
     function finishWorkout() {
@@ -564,16 +675,23 @@
       [...d.base, ...d.opt].forEach(ex => {
         const idx = db.alt[ex.id] ?? (db.cyc - 1);
         const info = ex.a[idx] || ex.a[0];
+        const defRepsNum = parseInt(ex.reps, 10) || 10;
         let maxW = 0, exDone = 0;
+
         for (let s = 0; s < ex.sets; s++) {
-          const st = db.s[ex.id + "_" + s];
+          const key = ex.id + "_" + s;
+          const st = db.s[key];
           if (st && st.d) {
             setsDone++;
             exDone++;
             const w = Number(st.w) || ex.w;
-            const r = Number(st.r) || 10;
+            const r = Number(st.r) || defRepsNum;
             vol += w * r;
             if (w > maxW) maxW = w;
+            db.lastPerf[key] = { w, r };
+            db.s[key] = { w, r, d: false };
+          } else if (st) {
+            st.d = false;
           }
         }
         if (exDone > 0) items.push({ name: info.n, sets: exDone, maxW });
@@ -584,18 +702,27 @@
         return;
       }
 
+      const durMin = Math.max(1, Math.round((Date.now() - (db.sessStart || Date.now())) / 60000));
+      const note = (db.notes[day] || "").trim();
+
       db.hist.unshift({
         date: new Date().toLocaleDateString("pt-BR"),
         day: d.t,
         cycle: db.cyc,
         sets: setsDone,
         vol: Math.round(vol),
+        dur: durMin,
+        note,
         items
       });
 
-      clearDone();
+      db.notes[day] = "";
+      db.sessStart = Date.now();
       save();
+      render();
+      updateSessionClock();
       switchNav("evolucao");
+      switchEvoTab("cargas");
     }
 
     function backup() {
@@ -614,7 +741,7 @@
         try {
           const parsed = JSON.parse(ev.target.result);
           if (parsed && typeof parsed === "object") {
-            db = { cyc: 1, alt: {}, s: {}, rests: {}, hist: [], body: [], height: 0, ...parsed };
+            db = { cyc: 1, alt: {}, s: {}, lastPerf: {}, rests: {}, hist: [], body: [], height: 0, notes: {}, goals: {}, sessStart: Date.now(), ...parsed };
             save();
             render();
             renderEvolucao();
@@ -635,17 +762,28 @@
       const defRepsNum = parseInt(ex.reps, 10) || 10;
 
       let sets = "";
+      let hitMax24 = false;
       for (let s = 0; s < ex.sets; s++) {
-        const st = db.s[ex.id + "_" + s] || { w: ex.w, r: defRepsNum, d: false };
+        const st = db.s[ex.id + "_" + s] || getDefaultSetState(ex, s, defRepsNum);
+        if (Number(st.w) >= 24) hitMax24 = true;
         const opts = PESOS.map(p => `<option value="${p}" ${Number(st.w)===p?"selected":""}>${p} kg</option>`).join("");
+        const quickBtn = s > 0
+          ? `<button class="btn-mini" title="Copiar série anterior" onclick="copyPrevSet('${ex.id}',${s},${ex.w},${defRepsNum})">⇄</button>`
+          : `<button class="btn-mini" title="+1 repetição" onclick="bumpRep('${ex.id}',${s},${ex.w},${defRepsNum},1)">+1</button>`;
         sets += `
           <div class="set ${st.d?"done":""}">
             <span class="meta">S${s+1}</span>
-            <select onchange="upd('${ex.id}',${s},'w',parseFloat(this.value),${restSec})">${opts}</select>
-            <input type="number" min="1" max="150" value="${st.r}" onchange="upd('${ex.id}',${s},'r',parseInt(this.value)||0,${restSec})" />
-            <button class="chk ${st.d?"done":""}" onclick="upd('${ex.id}',${s},'d',${!st.d},${restSec})">✓</button>
+            <select onchange="upd('${ex.id}',${s},'w',parseFloat(this.value),${restSec},${ex.w},${defRepsNum})">${opts}</select>
+            <input type="number" min="1" max="150" value="${st.r}" onchange="upd('${ex.id}',${s},'r',parseInt(this.value)||0,${restSec},${ex.w},${defRepsNum})" />
+            ${quickBtn}
+            <button class="chk ${st.d?"done":""}" onclick="upd('${ex.id}',${s},'d',${!st.d},${restSec},${ex.w},${defRepsNum})">✓</button>
           </div>`;
       }
+
+      const maxBadge = hitMax24 ? `<span class="tag max24">🔥 Teto 24kg</span>` : "";
+      const maxTip = hitMax24
+        ? `<div class="max-tip">⚡ <strong>Limite de 24kg atingido:</strong> para continuar progredindo sem mais carga, use descida lenta (3-4s), pausa de 2s no ponto difícil, +1–2 reps ou troque para a variação unilateral/ciclo seguinte.</div>`
+        : "";
 
       return `
         <div class="box ${isOpt?"opt":""}">
@@ -657,11 +795,13 @@
           <div class="tags">
             <span class="tag angle">📐 ${info.ang}</span>
             <span class="tag">Sugestão: ${ex.w}kg</span>
+            ${maxBadge}
             <label class="rest-edit">
               ⏱ Descanso (s):
               <input type="number" min="10" max="600" step="5" value="${restSec}" onchange="setRest('${ex.id}',this.value,${ex.rest});render();" />
             </label>
           </div>
+          ${maxTip}
           <div class="cue">${info.c}</div>
           ${sets}
         </div>`;
@@ -673,6 +813,7 @@
       document.getElementById("dTitle").textContent = d.t;
       document.getElementById("dSub").textContent = d.s;
       document.getElementById("cycBtn").textContent = cycNames[db.cyc - 1];
+      document.getElementById("sessionNote").value = db.notes[day] || "";
 
       document.getElementById("baseList").innerHTML = d.base.map((ex, i) => renderEx(ex, i, false)).join("");
       document.getElementById("optList").innerHTML = d.opt.map((ex, i) => renderEx(ex, i, true)).join("");
@@ -728,7 +869,13 @@
 
       const prKeys = Object.keys(prs);
       document.getElementById("prsList").innerHTML = prKeys.length
-        ? prKeys.map(k => `<div class="top" style="padding:6px 0;border-bottom:1px solid #222731;font-size:13px;"><span>${k}</span><strong style="color:var(--gold)">${prs[k]} kg</strong></div>`).join("")
+        ? prKeys.map(k => {
+            const isMax = Number(prs[k]) >= 24;
+            return `<div class="top" style="padding:6px 0;border-bottom:1px solid #222731;font-size:13px;">
+              <span>${k}</span>
+              <strong style="color:${isMax ? '#fca5a5' : 'var(--gold)'}">${prs[k]} kg ${isMax ? '🔥' : ''}</strong>
+            </div>`;
+          }).join("")
         : `<div class="meta">Conclua seu primeiro treino para registrar seus recordes.</div>`;
 
       document.getElementById("histList").innerHTML = db.hist.length
@@ -736,16 +883,15 @@
           <div class="hist-item">
             <div class="top">
               <strong style="font-size:13px">${h.day}</strong>
-              <span class="meta">${h.date} • Ciclo ${h.cycle}</span>
+              <span class="meta">${h.date} • Ciclo ${h.cycle}${h.dur ? ` • ${h.dur} min` : ""}</span>
             </div>
             <div class="meta" style="margin-top:4px">${h.sets} séries • Volume: ${h.vol} kg</div>
+            ${h.note ? `<div class="note-tag">📝 ${h.note}</div>` : ""}
           </div>`).join("")
         : `<div class="meta" style="margin-top:6px">Nenhuma sessão concluída ainda.</div>`;
     }
 
     let currentMetric = "weight";
-    if (!db.body) db.body = [];
-    if (!db.height) db.height = 0;
 
     function switchEvoTab(sub) {
       document.getElementById("evoCargas").style.display = sub === "cargas" ? "block" : "none";
@@ -756,6 +902,16 @@
     }
 
     function saveHeight(val) { db.height = parseFloat(val) || 0; save(); autoCalcBody(); }
+
+    function saveGoals() {
+      db.goals = {
+        weight: parseFloat(document.getElementById("gWeight").value) || null,
+        fat: parseFloat(document.getElementById("gFat").value) || null,
+        lean: parseFloat(document.getElementById("gLean").value) || null
+      };
+      save();
+      renderBody();
+    }
 
     function autoCalcBody() {
       const w = parseFloat(document.getElementById("inPeso").value);
@@ -801,25 +957,53 @@
       renderBodyChart();
     }
 
-    function formatDelta(cur, prev, unit) {
-      if (cur == null || prev == null) return "";
-      const diff = Number((cur - prev).toFixed(1));
-      if (diff === 0) return `<div class="delta">Sem alteração</div>`;
-      return `<div class="delta">${diff > 0 ? "+" : ""}${diff}${unit} vs anterior</div>`;
+    function formatDelta(cur, prev, first, unit) {
+      let html = "";
+      if (cur != null && prev != null) {
+        const diff = Number((cur - prev).toFixed(1));
+        html += `<div class="delta">${diff === 0 ? "Igual à anterior" : `${diff > 0 ? "+" : ""}${diff}${unit} vs anterior`}</div>`;
+      }
+      if (cur != null && first != null && db.body.length > 2) {
+        const tot = Number((cur - first).toFixed(1));
+        html += `<div class="delta total">${tot > 0 ? "+" : ""}${tot}${unit} desde o início</div>`;
+      }
+      return html;
     }
 
     function renderBody() {
       const dateInput = document.getElementById("inData");
       if (!dateInput.value) dateInput.value = new Date().toISOString().slice(0, 10);
       if (db.height) document.getElementById("inAltura").value = db.height;
-      const latest = db.body[0], prev = db.body[1];
+      if (db.goals.weight) document.getElementById("gWeight").value = db.goals.weight;
+      if (db.goals.fat) document.getElementById("gFat").value = db.goals.fat;
+      if (db.goals.lean) document.getElementById("gLean").value = db.goals.lean;
+
+      const latest = db.body[0], prev = db.body[1], first = db.body[db.body.length - 1];
       document.getElementById("bodyCards").innerHTML = latest ? `
-        <div class="stat-card"><div class="meta">PESO ATUAL</div><div class="stat-val">${latest.weight} kg</div>${formatDelta(latest.weight, prev?.weight, " kg")}</div>
-        <div class="stat-card"><div class="meta">IMC</div><div class="stat-val">${latest.imc ?? "—"}</div>${formatDelta(latest.imc, prev?.imc, "")}</div>
-        <div class="stat-card"><div class="meta">GORDURA CORPORAL</div><div class="stat-val">${latest.fat != null ? latest.fat + "%" : "—"}</div>${formatDelta(latest.fat, prev?.fat, "%")}</div>
-        <div class="stat-card"><div class="meta">MASSA LIVRE GORDURA</div><div class="stat-val">${latest.lean != null ? latest.lean + " kg" : "—"}</div>${formatDelta(latest.lean, prev?.lean, " kg")}</div>
-        <div class="stat-card" style="grid-column:span 2"><div class="meta">GORDURA SUBCUTÂNEA</div><div class="stat-val">${latest.sub != null ? latest.sub + "%" : "—"}</div>${formatDelta(latest.sub, prev?.sub, "%")}</div>
+        <div class="stat-card"><div class="meta">PESO ATUAL</div><div class="stat-val">${latest.weight} kg</div>${formatDelta(latest.weight, prev?.weight, first?.weight, " kg")}</div>
+        <div class="stat-card"><div class="meta">IMC</div><div class="stat-val">${latest.imc ?? "—"}</div>${formatDelta(latest.imc, prev?.imc, first?.imc, "")}</div>
+        <div class="stat-card"><div class="meta">GORDURA CORPORAL</div><div class="stat-val">${latest.fat != null ? latest.fat + "%" : "—"}</div>${formatDelta(latest.fat, prev?.fat, first?.fat, "%")}</div>
+        <div class="stat-card"><div class="meta">MASSA LIVRE GORDURA</div><div class="stat-val">${latest.lean != null ? latest.lean + " kg" : "—"}</div>${formatDelta(latest.lean, prev?.lean, first?.lean, " kg")}</div>
+        <div class="stat-card" style="grid-column:span 2"><div class="meta">GORDURA SUBCUTÂNEA</div><div class="stat-val">${latest.sub != null ? latest.sub + "%" : "—"}</div>${formatDelta(latest.sub, prev?.sub, first?.sub, "%")}</div>
       ` : "";
+
+      let gHtml = "";
+      if (latest) {
+        if (db.goals.weight && latest.weight != null) {
+          const diff = Number((latest.weight - db.goals.weight).toFixed(1));
+          gHtml += `<div class="meta" style="margin-top:4px">Peso: atual <b>${latest.weight}kg</b> • meta <b>${db.goals.weight}kg</b> (${diff === 0 ? "atingida!" : `falta ${Math.abs(diff)}kg`})</div>`;
+        }
+        if (db.goals.fat && latest.fat != null) {
+          const diff = Number((latest.fat - db.goals.fat).toFixed(1));
+          gHtml += `<div class="meta" style="margin-top:4px">Gordura: atual <b>${latest.fat}%</b> • meta <b>${db.goals.fat}%</b> (${diff <= 0 ? "atingida!" : `falta -${diff}%`})</div>`;
+        }
+        if (db.goals.lean && latest.lean != null) {
+          const diff = Number((db.goals.lean - latest.lean).toFixed(1));
+          gHtml += `<div class="meta" style="margin-top:4px">Massa Livre: atual <b>${latest.lean}kg</b> • meta <b>${db.goals.lean}kg</b> (${diff <= 0 ? "atingida!" : `falta +${diff}kg`})</div>`;
+        }
+      }
+      document.getElementById("goalProgress").innerHTML = gHtml;
+
       renderBodyChart();
       document.getElementById("bodyHistList").innerHTML = db.body.length ? db.body.map(b => `
         <div class="hist-item">
@@ -845,16 +1029,29 @@
         return;
       }
       box.style.display = "block";
+      const goalVal = db.goals[currentMetric] || null;
       const vals = series.map(s => Number(s[currentMetric]));
+      if (goalVal != null) vals.push(Number(goalVal));
       const min = Math.min(...vals), max = Math.max(...vals), span = (max - min) || 1;
-      const w = 320, h = 110, padX = 22, padY = 20;
+      const w = 320, h = 115, padX = 24, padY = 20;
       const pts = series.map((s, i) => ({
         x: padX + (i / (series.length - 1)) * (w - padX * 2),
         y: (h - padY) - ((Number(s[currentMetric]) - min) / span) * (h - padY * 2),
         val: s[currentMetric], date: s.date.slice(0, 5)
       }));
+
+      let goalLine = "";
+      if (goalVal != null) {
+        const gy = (h - padY) - ((Number(goalVal) - min) / span) * (h - padY * 2);
+        goalLine = `
+          <line x1="${padX}" y1="${gy.toFixed(1)}" x2="${w - padX}" y2="${gy.toFixed(1)}" stroke="#10b981" stroke-width="1.3" stroke-dasharray="4,3" />
+          <text x="${w - padX}" y="${(gy - 4).toFixed(1)}" fill="#10b981" font-size="8" text-anchor="end">Meta: ${goalVal}</text>
+        `;
+      }
+
       document.getElementById("bodyChart").innerHTML = `
         <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;background:#111419;border-radius:10px;border:1px solid #222731;">
+          ${goalLine}
           <polyline fill="none" stroke="#e5a93c" stroke-width="2.5" points="${pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ")}" />
           ${pts.map(p => `
             <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="#e5a93c" />
@@ -867,6 +1064,7 @@
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
     }
+    updateSessionClock();
     render();
   </script>
 </body>
