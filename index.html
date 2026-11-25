@@ -84,6 +84,7 @@
       border-radius: 14px; padding: 14px; margin-bottom: 12px;
     }
     .box.opt { border-color: rgba(229,169,60,.35); }
+    .box.custom-ex { border-color: rgba(96,165,250,.4); }
     .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .sec-title {
       display: flex; justify-content: space-between; align-items: center;
@@ -107,6 +108,9 @@
     .tag.angle {
       color: var(--gold); background: var(--gold-bg); border-color: rgba(229,169,60,.35); font-weight: 600;
     }
+    .tag.muscle {
+      color: #93c5fd; background: var(--blue-bg); border-color: rgba(96,165,250,.35); font-weight: 600;
+    }
     .tag.max24 {
       color: #fca5a5; background: rgba(239,68,68,.15); border-color: rgba(239,68,68,.4); font-weight: 700;
     }
@@ -128,6 +132,23 @@
       font-size: 12px; color: #cbd5e1; margin: 9px 0 10px; line-height: 1.4;
       background: #111419; border: 1px solid #222731; border-radius: 9px; padding: 8px 10px;
     }
+    .media-drawer {
+      margin: 8px 0 10px; background: #0b0d10; border: 1px solid #2a303b;
+      border-radius: 12px; padding: 10px; text-align: center;
+    }
+    .media-drawer video, .media-drawer img {
+      width: 100%; max-height: 260px; object-fit: contain; border-radius: 8px;
+      background: #ffffff; display: block; margin: 0 auto;
+    }
+    .media-bar {
+      display: flex; justify-content: space-between; align-items: center; gap: 6px;
+      margin-top: 8px; font-size: 11px; color: var(--muted);
+    }
+    .ex-actions { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+    .btn-media {
+      background: var(--blue-bg); color: var(--blue);
+      border: 1px solid rgba(96,165,250,.4); font-size: 11px; padding: 6px 8px;
+    }
     .set {
       display: grid; grid-template-columns: 32px 1fr 1fr 34px 38px; gap: 5px;
       align-items: center; margin-top: 6px; background: #111419;
@@ -148,6 +169,7 @@
     button { cursor: pointer; }
     .btn-mini { padding: 6px 4px; font-size: 11px; font-weight: 800; text-align: center; }
     .btn-gold { background: var(--gold-bg); color: var(--gold); border-color: rgba(229,169,60,.45); }
+    .btn-green { background: var(--green-bg); color: var(--green); border-color: rgba(16,185,129,.45); }
     .btn-danger { color: #fca5a5; border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.1); }
     .btn-finish {
       width: 100%; margin-top: 12px; padding: 14px; border-radius: 14px;
@@ -168,12 +190,12 @@
     .bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 25;
       background: rgba(13,15,18,.97); border-top: 1px solid var(--border);
-      display: grid; grid-template-columns: repeat(3, 1fr); padding: 6px 8px;
+      display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px 6px;
     }
     .nav-item {
       background: transparent; border: none; color: var(--muted);
       display: flex; flex-direction: column; align-items: center; gap: 2px;
-      padding: 7px 4px; border-radius: 12px; font-size: 11px; font-weight: 700;
+      padding: 7px 2px; border-radius: 12px; font-size: 10px; font-weight: 700;
     }
     .nav-item.active { background: var(--gold-bg); color: var(--gold); }
     .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
@@ -187,7 +209,7 @@
     .sub-tab.active { background: var(--gold); color: #111; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
     .field label { display: block; font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
-    .field input { width: 100%; text-align: left; padding: 9px 10px; }
+    .field input, .field select, .field textarea { width: 100%; text-align: left; padding: 9px 10px; }
     .delta { font-size: 11px; font-weight: 700; margin-top: 2px; color: var(--green); }
     .delta.total { color: var(--blue); }
     .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
@@ -204,6 +226,9 @@
     }
     .backup-notice.warn {
       background: rgba(229,169,60,.12); border-color: rgba(229,169,60,.45); color: #fde68a;
+    }
+    .search-input {
+      width: 100%; padding: 10px 12px; background: #111419; border-radius: 10px; font-size: 13px;
     }
   </style>
 </head>
@@ -224,6 +249,7 @@
   </header>
 
   <div class="wrap">
+    <!-- ABA 1: TREINO -->
     <div id="viewTreino">
       <div class="tabs">
         <div class="tab active" onclick="setDay(0)"><strong>Dia 1</strong><span>Ênfase Peito</span></div>
@@ -254,6 +280,14 @@
       </div>
       <div id="optList"></div>
 
+      <div id="extraDaySection" style="display:none">
+        <div class="sec-title">
+          <span>Adicionados Hoje (Avulsos)</span>
+          <span style="cursor:pointer;color:#fca5a5" onclick="clearExtraDayExercises()">Limpar avulsos</span>
+        </div>
+        <div id="extraDayList"></div>
+      </div>
+
       <div class="box" style="margin-top:14px">
         <label class="meta" for="sessionNote" style="display:block">OBSERVAÇÃO RÁPIDA DA SESSÃO (OPCIONAL)</label>
         <textarea id="sessionNote" class="note-box" placeholder="Ex.: sono curto, lombar firme, subi carga no supino, usei pausa de 2s..." oninput="saveNote(this.value)"></textarea>
@@ -265,6 +299,7 @@
       </div>
     </div>
 
+    <!-- ABA 2: CICLOS & VARIAÇÕES -->
     <div id="viewCiclos" style="display:none">
       <div class="box">
         <strong style="font-size:16px;display:block">Ciclos &amp; Variações (3 Ciclos)</strong>
@@ -278,6 +313,67 @@
       <div id="ciclosList"></div>
     </div>
 
+    <!-- ABA 3: EXERCÍCIOS (CATÁLOGO COMPLETO) -->
+    <div id="viewExercicios" style="display:none">
+      <div class="box">
+        <div class="top">
+          <div>
+            <strong style="font-size:16px;display:block">Exercícios • Setup B3 &amp; 24kg</strong>
+            <div class="meta" id="exCatalogCount">Catálogo completo por grupo muscular</div>
+          </div>
+          <button class="btn-gold" style="font-size:11px;padding:6px 10px" onclick="toggleNewExForm()">+ Novo</button>
+        </div>
+
+        <div id="newExForm" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+          <div class="form-grid">
+            <div class="field" style="grid-column:span 2"><label>Nome do Exercício</label><input type="text" id="nxName" placeholder="Ex.: Crucifixo Reto com Halteres" /></div>
+            <div class="field">
+              <label>Grupo Muscular</label>
+              <select id="nxGroup">
+                <option value="Peito">Peito</option>
+                <option value="Costas">Costas</option>
+                <option value="Ombros">Ombros</option>
+                <option value="Pernas">Pernas</option>
+                <option value="Braços">Braços</option>
+                <option value="Core">Core</option>
+              </select>
+            </div>
+            <div class="field"><label>Carga Sugerida (kg)</label><input type="number" step="0.5" id="nxWeight" placeholder="12" /></div>
+            <div class="field" style="grid-column:span 2"><label>Ajuste Banco B3 Move / Apoio</label><input type="text" id="nxAng" placeholder="Ex.: Banco 0° (Reto) • Assento 0°" /></div>
+            <div class="field" style="grid-column:span 2"><label>Dica de Execução</label><input type="text" id="nxCue" placeholder="Ex.: Cotovelos semiflexionados, alongue bem na descida." /></div>
+            <div class="field" style="grid-column:span 2"><label>Vídeo / Animação (Opcional)</label><input type="text" id="nxVid" placeholder="Ex.: midia/crucifixo_reto.mp4 ou https://..." /></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="btn-finish" style="margin-top:0;padding:10px;font-size:13px" onclick="saveCustomExercise()">Salvar Exercício</button>
+            <button style="padding:10px" onclick="toggleNewExForm(false)">Cancelar</button>
+          </div>
+        </div>
+
+        <div style="margin-top:10px">
+          <input type="text" class="search-input" id="exSearch" placeholder="🔍 Buscar exercício ou ângulo do banco..." oninput="renderExercicios()" />
+        </div>
+
+        <div class="chip-row" id="exGroupChips">
+          <button class="chip active" onclick="setExGroup('Todos', this)">Todos</button>
+          <button class="chip" onclick="setExGroup('Peito', this)">Peito</button>
+          <button class="chip" onclick="setExGroup('Costas', this)">Costas</button>
+          <button class="chip" onclick="setExGroup('Ombros', this)">Ombros</button>
+          <button class="chip" onclick="setExGroup('Pernas', this)">Pernas</button>
+          <button class="chip" onclick="setExGroup('Braços', this)">Braços</button>
+          <button class="chip" onclick="setExGroup('Core', this)">Core</button>
+        </div>
+
+        <div class="chip-row" style="margin-top:0">
+          <button class="chip active" id="vf_all" onclick="setVidFilter('all')">Todos</button>
+          <button class="chip" id="vf_with" onclick="setVidFilter('with')">🎬 Com vídeo</button>
+          <button class="chip" id="vf_without" onclick="setVidFilter('without')">🔗 Sem vídeo</button>
+        </div>
+      </div>
+
+      <div id="exerciciosList"></div>
+    </div>
+
+    <!-- ABA 4: EVOLUÇÃO -->
     <div id="viewEvolucao" style="display:none">
       <div class="sub-tabs">
         <button class="sub-tab active" id="subCargas" onclick="switchEvoTab('cargas')">🏋️ Cargas &amp; Treinos</button>
@@ -383,7 +479,11 @@
     </button>
     <button class="nav-item" id="navCiclos" onclick="switchNav('ciclos')">
       <span>🔄</span>
-      <span>Ciclos &amp; Variações</span>
+      <span>Ciclos</span>
+    </button>
+    <button class="nav-item" id="navExercicios" onclick="switchNav('exercicios')">
+      <span>💪</span>
+      <span>Exercícios</span>
     </button>
     <button class="nav-item" id="navEvolucao" onclick="switchNav('evolucao')">
       <span>📈</span>
@@ -393,6 +493,157 @@
 
   <script>
     const PESOS = [2.5,3.5,4.5,5.5,6.5,8,9,10,11.5,13.5,16,18,20.5,22.5,24];
+
+    /* MAPA DE VÍDEOS/ANIMAÇÕES LIGADO PELO NOME EXATO DO EXERCÍCIO
+       Coloque seus arquivos curtos (.mp4, .webp ou .gif) na pasta midia/ do GitHub ou vincule pelo app. */
+    const VIDEOS_EXERCICIOS = {
+      "Supino Reto com Halteres": "",
+      "Supino Reto Pegada Neutra": "",
+      "Supino Reto com Pausa (2s)": "",
+      "Supino Inclinado 22°": "",
+      "Supino Inclinado 22° a 40°": "",
+      "Supino Inclinado 1 e 1/4": "",
+      "Crucifixo Inclinado 22°": "",
+      "Crucifixo Inclinado": "",
+      "Crucifixo Reto com Halteres": "",
+      "Press Fechado (Crush Press)": "",
+      "Supino Declinado -22°": "",
+      "Agachamento Búlgaro": "",
+      "Agachamento Búlgaro Leve": "",
+      "Búlgaro com Cadência 3-1-1": "",
+      "Afundo Estático com Halteres": "",
+      "Afundo Estático": "",
+      "Passada Reversa no Piso": "",
+      "Stiff / RDL com Halteres": "",
+      "Stiff Unilateral Apoiado": "",
+      "RDL com Pausa 2s": "",
+      "Agachamento Goblet (1 Haltere)": "",
+      "Agachamento Sumô (1 Haltere)": "",
+      "Agachamento Frontal (2 Halteres)": "",
+      "Elevação Pélvica no Banco": "",
+      "Ponte de Glúteo Unilateral": "",
+      "Elevação Pélvica Pausa 3s": "",
+      "Panturrilha Unilateral em Pé": "",
+      "Panturrilha Sentado com Carga": "",
+      "Panturrilha Unilateral Pausa 2s": "",
+      "Remada Serrote Unilateral": "",
+      "Remada Serrote com Pausa 2s": "",
+      "Remada Unilateral Pesada": "",
+      "Remada Unilateral Alta Repetição": "",
+      "Remada Peito Apoiado Bilateral": "",
+      "Remada Peito Apoiado 40°": "",
+      "Remada Supinada no Banco 40°": "",
+      "Remada Curvada Bilateral": "",
+      "Pullover no Banco Reto": "",
+      "Encolhimento de Ombros": "",
+      "Elevação Lateral": "",
+      "Elevação Lateral Inclinada": "",
+      "Elevação Lateral Controlada": "",
+      "Desenvolvimento de Ombros": "",
+      "Desenvolvimento Arnold": "",
+      "Desenvolvimento Unilateral": "",
+      "Crucifixo Invertido Peito Apoiado": "",
+      "Crucifixo Invertido Unilateral": "",
+      "Remada Alta Aberta Apoiada": "",
+      "Elevação Frontal Alternada": "",
+      "Elevação em Y no Banco 40°": "",
+      "Tríceps Testa no Banco": "",
+      "Tríceps Francês Unilateral": "",
+      "Tríceps Coice Apoiado no Banco": "",
+      "Rosca Scott no Encosto do B3": "",
+      "Rosca Martelo Alternada": "",
+      "Rosca Inclinada 60°": "",
+      "Rosca Direta Alternada": "",
+      "Rosca Concentrada": "",
+      "Abdominal Infra no Banco": "",
+      "Abdominal Supra Curto": "",
+      "Abdominal Canivete no Banco": "",
+      "Prancha Abdominal": "",
+      "Prancha com Toque no Ombro": "",
+      "Prancha RKC (Tensão Máxima)": "",
+      "Abdominal Declinado no B3": "",
+      "Abdominal Bicicleta no Banco": "",
+      "Declinado com Haltere no Peito": ""
+    };
+
+    /* CATÁLOGO COMPLETO DE EXERCÍCIOS PARA O SETUP B3 MOVE + PAR 24KG */
+    const CATALOGO_EXERCICIOS = [
+      // PEITO
+      { n:"Supino Reto com Halteres", g:"Peito", w:16, reps:"8-12", rest:90, ang:"Banco 0° (Reto) • Assento 0°", c:"Desça os cotovelos a ~45° do tronco até a linha do peitoral e empurre com firmeza." },
+      { n:"Supino Reto Pegada Neutra", g:"Peito", w:16, reps:"8-12", rest:90, ang:"Banco 0° (Reto) • Assento 0°", c:"Palmas voltadas uma para a outra; excelente conforto articular para ombros." },
+      { n:"Supino Reto com Pausa (2s)", g:"Peito", w:13.5, reps:"8-10", rest:90, ang:"Banco 0° • Pausa no fundo", c:"Segure 2 segundos na linha do peito para eliminar o impulso e aumentar tensão." },
+      { n:"Supino Inclinado 22°", g:"Peito", w:13.5, reps:"10-12", rest:75, ang:"Banco 22° • Assento 15°", c:"Inclinação baixa ideal para ativar o feixe clavicular sem sobrecarregar o deltoide." },
+      { n:"Supino Inclinado 22° a 40°", g:"Peito", w:16, reps:"8-12", rest:90, ang:"Banco 22° ou 40° • Assento 15°", c:"Foco na porção superior do peitoral com estabilidade total." },
+      { n:"Supino Inclinado 1 e 1/4", g:"Peito", w:13.5, reps:"8-10", rest:90, ang:"Banco 22° • Assento 15°", c:"Desça tudo, suba 1/4, desça de novo e suba completo — ótimo para o teto de 24kg." },
+      { n:"Crucifixo Reto com Halteres", g:"Peito", w:11.5, reps:"10-15", rest:60, ang:"Banco 0° (Reto) • Assento 0°", c:"Cotovelos levemente flexionados e fixos; abra até sentir bom alongamento peitoral." },
+      { n:"Crucifixo Inclinado 22°", g:"Peito", w:10, reps:"10-15", rest:60, ang:"Banco 22° • Assento 15°", c:"Abra com controle e feche mantendo tensão contínua no topo." },
+      { n:"Press Fechado (Crush Press)", g:"Peito", w:13.5, reps:"10-12", rest:75, ang:"Banco 0° ou 22° • Halteres unidos", c:"Pressione um haltere contra o outro durante todo o movimento." },
+      { n:"Supino Declinado -22°", g:"Peito", w:16, reps:"8-12", rest:90, ang:"Banco -22° • Pés no rolo", c:"Ótima variação para porção esternal/inferior do peitoral usando o apoio de pés do B3." },
+
+      // COSTAS
+      { n:"Remada Serrote Unilateral", g:"Costas", w:18, reps:"8-12", rest:75, ang:"Mão e joelho apoiados no B3 (0°)", c:"Puxe o haltere em direção ao quadril mantendo a coluna neutra." },
+      { n:"Remada Unilateral Pesada", g:"Costas", w:20.5, reps:"8-12", rest:90, ang:"Apoio no B3 (0° ou 22°)", c:"Carga firme com descida controlada em 3 segundos." },
+      { n:"Remada Serrote com Pausa 2s", g:"Costas", w:18, reps:"8-12", rest:75, ang:"Apoio firme no B3", c:"Segure 2s no topo contraindo forte o dorsal." },
+      { n:"Remada Peito Apoiado Bilateral", g:"Costas", w:16, reps:"10-12", rest:75, ang:"Banco 40° • Assento 15°", c:"Apoie o peito no encosto e puxe os dois halteres juntos sem roubar com a lombar." },
+      { n:"Remada Peito Apoiado 40°", g:"Costas", w:16, reps:"10-12", rest:75, ang:"Banco 40° • Assento 15°", c:"Feche bem as escápulas no topo de cada repetição." },
+      { n:"Remada Supinada no Banco 40°", g:"Costas", w:16, reps:"10-12", rest:75, ang:"Banco 40° • Palmas para cima", c:"Cotovelos rentes ao tronco enfatizando a porção inferior do dorsal." },
+      { n:"Remada Curvada Bilateral", g:"Costas", w:18, reps:"8-12", rest:90, ang:"Piso 15mm • Tronco ~45°", c:"Puxe os dois halteres juntos até a linha do quadril." },
+      { n:"Pullover no Banco Reto", g:"Costas", w:16, reps:"10-12", rest:75, ang:"Banco 0° (Reto)", c:"Segure um haltere com as duas mãos e trabalhe o alongamento máximo do dorsal." },
+      { n:"Encolhimento de Ombros", g:"Costas", w:22.5, reps:"12-15", rest:60, ang:"Em pé sobre piso 15mm", c:"Eleve os ombros em direção às orelhas e segure 1-2s no topo para trapézio." },
+
+      // OMBROS
+      { n:"Elevação Lateral", g:"Ombros", w:8, reps:"12-15", rest:60, ang:"Em pé ou banco 85°", c:"Eleve os braços até a altura dos ombros sem balançar o tronco." },
+      { n:"Elevação Lateral Inclinada", g:"Ombros", w:8, reps:"12-15", rest:60, ang:"Banco 60° • Apoio lateral", c:"Segure no banco e execute unilateralmente com foco no deltoide lateral." },
+      { n:"Elevação Lateral Controlada", g:"Ombros", w:6.5, reps:"12-15", rest:60, ang:"Em pé sobre piso 15mm", c:"Descida lenta em 3 segundos mantendo tensão constante." },
+      { n:"Desenvolvimento de Ombros", g:"Ombros", w:13.5, reps:"8-12", rest:90, ang:"Banco 60° a 85° • Assento 15°", c:"Costas bem apoiadas e empurre acima da cabeça com cotovelos levemente à frente." },
+      { n:"Desenvolvimento Arnold", g:"Ombros", w:11.5, reps:"8-12", rest:90, ang:"Banco 75° • Assento 15°", c:"Gire os punhos durante a subida com controle recrutando deltoide anterior e lateral." },
+      { n:"Desenvolvimento Unilateral", g:"Ombros", w:13.5, reps:"8-12", rest:75, ang:"Banco 85° • 1 Haltere por vez", c:"Foco em estabilidade de core e simetria entre os lados." },
+      { n:"Crucifixo Invertido Peito Apoiado", g:"Ombros", w:8, reps:"12-15", rest:60, ang:"Banco 40° • Assento 15°", c:"Foco no deltoide posterior sem impulso do tronco." },
+      { n:"Crucifixo Invertido Unilateral", g:"Ombros", w:8, reps:"12-15", rest:60, ang:"Banco 40°", c:"Amplitude estendida e controlada para posterior de ombro." },
+      { n:"Remada Alta Aberta Apoiada", g:"Ombros", w:10, reps:"12-15", rest:60, ang:"Banco 40° • Peito no banco", c:"Cotovelos abertos trabalhando deltoide posterior e trapézio médio." },
+      { n:"Elevação Frontal Alternada", g:"Ombros", w:8, reps:"12-15", rest:60, ang:"Banco 75°", c:"Eleve até a altura dos olhos com ritmo constante." },
+      { n:"Elevação em Y no Banco 40°", g:"Ombros", w:5.5, reps:"12-15", rest:60, ang:"Banco 40° • Peito apoiado", c:"Polegares para cima formando um Y; trabalha deltoide e trapézio inferior." },
+
+      // PERNAS & GLÚTEOS
+      { n:"Agachamento Búlgaro", g:"Pernas", w:13.5, reps:"8-12", rest:90, ang:"Peito do pé apoiado no B3", c:"Tronco levemente inclinado; desça controlado sobre o piso de 15mm." },
+      { n:"Búlgaro com Cadência 3-1-1", g:"Pernas", w:11.5, reps:"8-10", rest:90, ang:"Pé traseiro no B3 (0°)", c:"3s descendo e 1s de pausa embaixo — multiplica a intensidade com menos carga." },
+      { n:"Afundo Estático com Halteres", g:"Pernas", w:13.5, reps:"10-12", rest:75, ang:"Piso 15mm ao lado do banco", c:"Mantenha a base firme e empurre o chão pelo calcanhar da frente." },
+      { n:"Passada Reversa no Piso", g:"Pernas", w:13.5, reps:"10-12", rest:75, ang:"Piso 15mm", c:"Dê o passo para trás controlando quadril e alinhamento do joelho." },
+      { n:"Stiff / RDL com Halteres", g:"Pernas", w:20.5, reps:"10-12", rest:90, ang:"Piso 15mm", c:"Quadril para trás, halteres rentes às pernas e coluna neutra." },
+      { n:"Stiff Unilateral Apoiado", g:"Pernas", w:16, reps:"10-12", rest:75, ang:"Mão livre apoiada no B3", c:"Maior exigência de estabilidade e alongamento no posterior de coxa." },
+      { n:"RDL com Pausa 2s", g:"Pernas", w:20.5, reps:"8-12", rest:90, ang:"Piso 15mm • Pausa no alongamento", c:"Segure 2s no alongamento máximo dos isquiotibiais antes de subir." },
+      { n:"Agachamento Goblet (1 Haltere)", g:"Pernas", w:22.5, reps:"12-15", rest:90, ang:"Piso 15mm", c:"Segure um dumbbell junto ao peito e agache com amplitude completa." },
+      { n:"Agachamento Sumô (1 Haltere)", g:"Pernas", w:24, reps:"12-15", rest:90, ang:"Piso 15mm • Base aberta", c:"Pontas dos pés levemente para fora, foco em adutores e glúteos." },
+      { n:"Agachamento Frontal (2 Halteres)", g:"Pernas", w:18, reps:"10-12", rest:90, ang:"Piso 15mm • Halteres nos ombros", c:"Tronco bem vertical e amplitude controlada." },
+      { n:"Elevação Pélvica no Banco", g:"Pernas", w:22.5, reps:"12-15", rest:60, ang:"Escápulas apoiadas no B3 (0°)", c:"Contraia forte os glúteos no topo mantendo o queixo levemente recolhido." },
+      { n:"Ponte de Glúteo Unilateral", g:"Pernas", w:16, reps:"10-12", rest:60, ang:"Escápulas no B3 • 1 Perna", c:"Excelente opção unilateral para atingir alta intensidade com o par de 24kg." },
+      { n:"Elevação Pélvica Pausa 3s", g:"Pernas", w:20.5, reps:"10-12", rest:60, ang:"Escápulas no B3 (0°)", c:"Segure 3 segundos no pico de contração." },
+      { n:"Panturrilha Unilateral em Pé", g:"Pernas", w:16, reps:"12-15", rest:45, ang:"Mão no B3 • 1 Haltere", c:"Suba na ponta do pé, segure 1s no topo e desça devagar." },
+      { n:"Panturrilha Sentado com Carga", g:"Pernas", w:20.5, reps:"15-20", rest:45, ang:"Sentado no B3 • Halteres nas coxas", c:"Amplitude completa trabalhando sóleo." },
+      { n:"Panturrilha Unilateral Pausa 2s", g:"Pernas", w:16, reps:"12-15", rest:45, ang:"Mão no B3", c:"2 segundos embaixo para eliminar o efeito mola do tendão." },
+
+      // BRAÇOS
+      { n:"Tríceps Testa no Banco", g:"Braços", w:9, reps:"10-12", rest:60, ang:"Banco 0° (Reto)", c:"Desça ao lado das têmporas mantendo os cotovelos apontados para o teto." },
+      { n:"Tríceps Francês Unilateral", g:"Braços", w:9, reps:"10-12", rest:60, ang:"Banco 85° (Encosto alto)", c:"Mantenha o braço próximo à orelha e estenda totalmente o cotovelo." },
+      { n:"Tríceps Coice Apoiado no Banco", g:"Braços", w:8, reps:"12-15", rest:60, ang:"Banco 40° • Peito apoiado", c:"Estenda bem o cotovelo segurando 1s no pico." },
+      { n:"Rosca Scott no Encosto do B3", g:"Braços", w:10, reps:"10-12", rest:60, ang:"Banco 40° ou 60° • Braço apoiado", c:"Apoie o braço no encosto inclinado para isolar o bíceps sem balanço." },
+      { n:"Rosca Martelo Alternada", g:"Braços", w:11.5, reps:"10-12", rest:60, ang:"Banco 75° ou em pé", c:"Pegada neutra focando em braquial e braquiorradial." },
+      { n:"Rosca Inclinada 60°", g:"Braços", w:9, reps:"10-12", rest:60, ang:"Banco 60° • Costas apoiadas", c:"Braços atrás da linha do tronco para alongamento máximo da cabeça longa do bíceps." },
+      { n:"Rosca Direta Alternada", g:"Braços", w:11.5, reps:"10-12", rest:60, ang:"Em pé ou banco 85°", c:"Supine o punho durante a subida mantendo o cotovelo estável." },
+      { n:"Rosca Concentrada", g:"Braços", w:10, reps:"10-12", rest:60, ang:"Sentado no B3 • Cotovelo na coxa", c:"Isolamento máximo de pico de bíceps." },
+
+      // CORE
+      { n:"Abdominal Infra no Banco", g:"Core", w:2.5, reps:"12-15", rest:60, ang:"Banco 0° (Reto)", c:"Segure firme atrás da cabeça no banco e eleve o quadril com controle." },
+      { n:"Abdominal Supra Curto", g:"Core", w:2.5, reps:"15-20", rest:45, ang:"Banco 0° • Pés apoiados", c:"Suba apenas as escápulas soltando todo o ar no topo." },
+      { n:"Abdominal Canivete no Banco", g:"Core", w:2.5, reps:"12-15", rest:60, ang:"Banco 0° (Reto)", c:"Coordene tronco e pernas sem trancos na lombar." },
+      { n:"Abdominal Declinado no B3", g:"Core", w:2.5, reps:"12-15", rest:60, ang:"Banco -22° • Pés no rolo", c:"Desça controlando o tronco e suba sem puxar o pescoço." },
+      { n:"Declinado com Haltere no Peito", g:"Core", w:5.5, reps:"10-12", rest:60, ang:"Banco -22° • Pés no rolo", c:"Adicione carga leve no peito mantendo cadência controlada." },
+      { n:"Abdominal Bicicleta no Banco", g:"Core", w:2.5, reps:"16-20", rest:45, ang:"Banco 0° (Reto)", c:"Alterne rotação de tronco e pernas de forma lenta." },
+      { n:"Prancha Abdominal", g:"Core", w:2.5, reps:"40s", rest:60, ang:"Piso 15mm", c:"Contraia abdômen e glúteos mantendo coluna alinhada." },
+      { n:"Prancha com Toque no Ombro", g:"Core", w:2.5, reps:"30-40s", rest:60, ang:"Piso 15mm", c:"Evite girar o quadril ao alternar o apoio das mãos." },
+      { n:"Prancha RKC (Tensão Máxima)", g:"Core", w:2.5, reps:"25-35s", rest:60, ang:"Piso 15mm", c:"Contração isométrica máxima de glúteos, quadríceps e abdômen." }
+    ];
+
     const TREINOS = [
       {
         t: "Dia 1: Full Body (Ênfase Peito)", s: "Peitoral, Quadríceps, Costas, Ombros e Core",
@@ -522,8 +773,9 @@
       }
     ];
 
-    let day = 0, tmr = null, sec = 0, promptEvt = null, wakeLock = null;
-    let db = JSON.parse(localStorage.getItem("hg_b3_v4") || '{"cyc":1,"alt":{},"s":{},"lastPerf":{},"extraSets":{},"rests":{},"hist":[],"body":[],"height":0,"notes":{},"goals":{},"lastBackup":0,"sessStart":0,"sessElapsed":0,"sessRunning":false}');
+    let day = 0, tmr = null, sec = 0, promptEvt = null, wakeLock = null, openMedia = {}, openCatMedia = {};
+    let exGroupFilter = "Todos", vidFilter = "all";
+    let db = JSON.parse(localStorage.getItem("hg_b3_v4") || '{"cyc":1,"alt":{},"s":{},"lastPerf":{},"extraSets":{},"rests":{},"videos":{},"customEx":[],"dayExtras":{"0":[],"1":[],"2":[]},"hist":[],"body":[],"height":0,"notes":{},"goals":{},"lastBackup":0,"sessStart":0,"sessElapsed":0,"sessRunning":false}');
     if (!db.rests) db.rests = {};
     if (!db.hist) db.hist = [];
     if (!db.body) db.body = [];
@@ -531,6 +783,9 @@
     if (!db.goals) db.goals = {};
     if (!db.lastPerf) db.lastPerf = {};
     if (!db.extraSets) db.extraSets = {};
+    if (!db.videos) db.videos = {};
+    if (!db.customEx) db.customEx = [];
+    if (!db.dayExtras) db.dayExtras = { "0": [], "1": [], "2": [] };
     if (typeof db.sessElapsed !== "number") db.sessElapsed = 0;
     if (typeof db.sessRunning !== "boolean") db.sessRunning = false;
 
@@ -540,6 +795,192 @@
       else alert("Para instalar: toque nos 3 pontinhos do Chrome > Adicionar à tela inicial > Instalar.");
     }
     function save() { localStorage.setItem("hg_b3_v4", JSON.stringify(db)); }
+
+    /* VÍDEO / ANIMAÇÃO POR NOME DO EXERCÍCIO */
+    function getExerciseVideo(exName) {
+      const custom = (db.videos?.[exName] || "").trim();
+      if (custom) return custom;
+      return (VIDEOS_EXERCICIOS[exName] || "").trim();
+    }
+    function toggleMediaDrawer(exId) {
+      openMedia[exId] = !openMedia[exId];
+      render();
+    }
+    function toggleCatMedia(idx) {
+      openCatMedia[idx] = !openCatMedia[idx];
+      renderExercicios();
+    }
+    function editExerciseVideo(exName, exId, fromCatalog = false, catIdx = 0) {
+      const cur = getExerciseVideo(exName);
+      const val = prompt(`Caminho ou link do vídeo/animação para:
+"${exName}"
+(Ex.: midia/supino_reto.mp4 ou https://...)`, cur);
+      if (val === null) return;
+      db.videos[exName] = val.trim();
+      save();
+      if (fromCatalog) {
+        if (val.trim()) openCatMedia[catIdx] = true;
+        renderExercicios();
+      } else {
+        if (val.trim()) openMedia[exId] = true;
+        render();
+      }
+    }
+    function buildMediaPlayerHTML(exName, src, onEditCall) {
+      const isImg = /\.(gif|webp|png|jpg|jpeg)(\?.*)?$/i.test(src);
+      const player = src
+        ? (isImg
+            ? `<img src="${src}" alt="${exName}" loading="lazy" />`
+            : `<video src="${src}" autoplay loop muted playsinline controls preload="metadata"></video>`)
+        : `<div class="meta" style="padding:14px 8px">Nenhum arquivo/link vinculado ainda para <b>${exName}</b>.</div>`;
+      return `
+        <div class="media-drawer">
+          ${player}
+          <div class="media-bar">
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:68%">${src ? `Arquivo: ${src}` : "Use pasta midia/... ou URL"}</span>
+            <button style="padding:4px 8px;font-size:11px" onclick="${onEditCall}">Alterar link</button>
+          </div>
+        </div>`;
+    }
+    function renderMediaBlock(exName, exId) {
+      if (!openMedia[exId]) return "";
+      const src = getExerciseVideo(exName);
+      const esc = exName.replace(/'/g, "\'");
+      return buildMediaPlayerHTML(exName, src, `editExerciseVideo('${esc}','${exId}',false)`);
+    }
+
+    /* CATÁLOGO COMPLETO DE EXERCÍCIOS */
+    function getAllCatalogExercises() {
+      const baseMap = new Map();
+      CATALOGO_EXERCICIOS.forEach(item => baseMap.set(item.n, { ...item, custom: false }));
+      (db.customEx || []).forEach(item => baseMap.set(item.n, { ...item, custom: true }));
+      return Array.from(baseMap.values());
+    }
+    function toggleNewExForm(force) {
+      const el = document.getElementById("newExForm");
+      if (!el) return;
+      el.style.display = typeof force === "boolean" ? (force ? "block" : "none") : (el.style.display === "none" ? "block" : "none");
+    }
+    function saveCustomExercise() {
+      const n = (document.getElementById("nxName").value || "").trim();
+      const g = document.getElementById("nxGroup").value || "Peito";
+      const w = parseFloat(document.getElementById("nxWeight").value) || 10;
+      const ang = (document.getElementById("nxAng").value || "Banco 0° (Reto)").trim();
+      const c = (document.getElementById("nxCue").value || "Execução controlada mantendo postura firme.").trim();
+      const vid = (document.getElementById("nxVid").value || "").trim();
+      if (!n) { alert("Informe o nome do exercício."); return; }
+
+      db.customEx = (db.customEx || []).filter(x => x.n.toLowerCase() !== n.toLowerCase());
+      db.customEx.unshift({ n, g, w, reps: "10-12", rest: 75, ang, c });
+      if (vid) db.videos[n] = vid;
+      save();
+
+      ["nxName", "nxWeight", "nxAng", "nxCue", "nxVid"].forEach(id => document.getElementById(id).value = "");
+      toggleNewExForm(false);
+      renderExercicios();
+    }
+    function deleteCustomExercise(name) {
+      if (!confirm(`Remover "${name}" dos exercícios personalizados?`)) return;
+      db.customEx = (db.customEx || []).filter(x => x.n !== name);
+      save();
+      renderExercicios();
+    }
+    function setExGroup(grp, btnEl) {
+      exGroupFilter = grp;
+      document.querySelectorAll("#exGroupChips .chip").forEach(c => c.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
+      renderExercicios();
+    }
+    function setVidFilter(f) {
+      vidFilter = f;
+      ["all", "with", "without"].forEach(k => document.getElementById("vf_" + k).classList.toggle("active", k === f));
+      renderExercicios();
+    }
+    function addExerciseToCurrentDay(exName) {
+      const all = getAllCatalogExercises();
+      const found = all.find(x => x.n === exName);
+      if (!found) return;
+      const dKey = String(day);
+      if (!db.dayExtras[dKey]) db.dayExtras[dKey] = [];
+      const newEx = {
+        id: "ext_" + Date.now(),
+        sets: 3,
+        reps: found.reps || "10-12",
+        rest: found.rest || 75,
+        w: found.w || 10,
+        a: [
+          { n: found.n, ang: found.ang, c: found.c },
+          { n: found.n, ang: found.ang, c: found.c },
+          { n: found.n, ang: found.ang, c: found.c }
+        ]
+      };
+      db.dayExtras[dKey].push(newEx);
+      save();
+      switchNav("treino");
+      render();
+    }
+    function clearExtraDayExercises() {
+      const dKey = String(day);
+      if (!db.dayExtras[dKey]?.length) return;
+      if (confirm("Remover os exercícios avulsos adicionados ao dia atual?")) {
+        db.dayExtras[dKey] = [];
+        save();
+        render();
+      }
+    }
+    function renderExercicios() {
+      const q = (document.getElementById("exSearch")?.value || "").trim().toLowerCase();
+      const all = getAllCatalogExercises();
+      const filtered = all.filter(item => {
+        if (exGroupFilter !== "Todos" && item.g !== exGroupFilter) return false;
+        const hasVid = Boolean(getExerciseVideo(item.n));
+        if (vidFilter === "with" && !hasVid) return false;
+        if (vidFilter === "without" && hasVid) return false;
+        if (q && !item.n.toLowerCase().includes(q) && !item.ang.toLowerCase().includes(q) && !item.g.toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      const withVidCount = all.filter(x => Boolean(getExerciseVideo(x.n))).length;
+      document.getElementById("exCatalogCount").textContent = `${filtered.length} de ${all.length} exercícios • ${withVidCount} com vídeo`;
+
+      if (!filtered.length) {
+        document.getElementById("exerciciosList").innerHTML = `<div class="box"><div class="meta">Nenhum exercício encontrado com os filtros atuais.</div></div>`;
+        return;
+      }
+
+      document.getElementById("exerciciosList").innerHTML = filtered.map((item, idx) => {
+        const vidSrc = getExerciseVideo(item.n);
+        const hasVid = Boolean(vidSrc);
+        const esc = item.n.replace(/'/g, "\'");
+        const mediaBtn = hasVid
+          ? `<button class="btn-media" onclick="toggleCatMedia(${idx})">${openCatMedia[idx] ? "✕ Fechar" : "🎬 Execução"}</button>`
+          : `<button style="font-size:11px;padding:6px 8px" onclick="editExerciseVideo('${esc}','',true,${idx})">🔗 Vídeo</button>`;
+        const mediaDrawer = openCatMedia[idx]
+          ? buildMediaPlayerHTML(item.n, vidSrc, `editExerciseVideo('${esc}','',true,${idx})`)
+          : "";
+        return `
+          <div class="box ${item.custom ? "custom-ex" : ""}">
+            <div class="top">
+              <div class="tags" style="margin-top:0">
+                <span class="tag muscle">${item.g}</span>
+                <span class="tag">Base: ${item.w}kg</span>
+                ${item.custom ? `<span class="tag angle">Personalizado</span>` : ""}
+              </div>
+              <div class="ex-actions">
+                ${mediaBtn}
+                ${item.custom ? `<button class="btn-danger" style="font-size:11px;padding:6px 7px" onclick="deleteCustomExercise('${esc}')">✕</button>` : ""}
+              </div>
+            </div>
+            <div class="ex-title" style="margin-top:8px">${item.n}</div>
+            <div class="tags">
+              <span class="tag angle">📐 ${item.ang}</span>
+            </div>
+            ${mediaDrawer}
+            <div class="cue">${item.c}</div>
+            <button class="btn-green" style="width:100%;font-size:12px;padding:8px" onclick="addExerciseToCurrentDay('${esc}')">+ Adicionar ao Dia ${day + 1} (Avulso)</button>
+          </div>`;
+      }).join("");
+    }
 
     /* MODO TELA ACORDADA (WAKE LOCK) */
     async function requestWakeLock() {
@@ -620,11 +1061,14 @@
     function switchNav(tab) {
       document.getElementById("viewTreino").style.display = tab === "treino" ? "block" : "none";
       document.getElementById("viewCiclos").style.display = tab === "ciclos" ? "block" : "none";
+      document.getElementById("viewExercicios").style.display = tab === "exercicios" ? "block" : "none";
       document.getElementById("viewEvolucao").style.display = tab === "evolucao" ? "block" : "none";
       document.getElementById("navTreino").classList.toggle("active", tab === "treino");
       document.getElementById("navCiclos").classList.toggle("active", tab === "ciclos");
+      document.getElementById("navExercicios").classList.toggle("active", tab === "exercicios");
       document.getElementById("navEvolucao").classList.toggle("active", tab === "evolucao");
       if (tab === "ciclos") renderCiclos();
+      if (tab === "exercicios") renderExercicios();
       if (tab === "evolucao") { renderEvolucao(); renderBody(); renderBackupNotice(); }
     }
 
@@ -763,9 +1207,13 @@
       document.getElementById("tDisp").textContent = m + ":" + r;
     }
 
+    function getDayExtras() {
+      return db.dayExtras?.[String(day)] || [];
+    }
+
     function clearDone() {
       const d = TREINOS[day];
-      [...d.base, ...d.opt].forEach(ex => {
+      [...d.base, ...d.opt, ...getDayExtras()].forEach(ex => {
         const totalSets = getTotalSets(ex);
         for (let s = 0; s < totalSets; s++) {
           const key = ex.id + "_" + s;
@@ -781,7 +1229,7 @@
     function finishWorkout() {
       const d = TREINOS[day];
       let setsDone = 0, vol = 0, items = [];
-      [...d.base, ...d.opt].forEach(ex => {
+      [...d.base, ...d.opt, ...getDayExtras()].forEach(ex => {
         const idx = db.alt[ex.id] ?? (db.cyc - 1);
         const info = ex.a[idx] || ex.a[0];
         const defRepsNum = parseInt(ex.reps, 10) || 10;
@@ -904,7 +1352,7 @@
         try {
           const parsed = JSON.parse(ev.target.result);
           if (parsed && typeof parsed === "object") {
-            db = { cyc: 1, alt: {}, s: {}, lastPerf: {}, extraSets: {}, rests: {}, hist: [], body: [], height: 0, notes: {}, goals: {}, lastBackup: 0, sessStart: 0, sessElapsed: 0, sessRunning: false, ...parsed };
+            db = { cyc: 1, alt: {}, s: {}, lastPerf: {}, extraSets: {}, rests: {}, videos: {}, customEx: [], dayExtras: { "0": [], "1": [], "2": [] }, hist: [], body: [], height: 0, notes: {}, goals: {}, lastBackup: 0, sessStart: 0, sessElapsed: 0, sessRunning: false, ...parsed };
             save();
             render();
             renderEvolucao();
@@ -920,12 +1368,26 @@
       reader.readAsText(file);
     }
 
-    function renderEx(ex, i, isOpt) {
+    function removeSingleExtraExercise(exId) {
+      const dKey = String(day);
+      db.dayExtras[dKey] = (db.dayExtras[dKey] || []).filter(x => x.id !== exId);
+      save();
+      render();
+    }
+
+    function getExerciseGroup(exName) {
+      const found = getAllCatalogExercises().find(x => x.n.toLowerCase() === (exName || "").toLowerCase());
+      return found ? found.g : "";
+    }
+    function renderEx(ex, i, isOpt, isExtra = false) {
       const idx = db.alt[ex.id] ?? (db.cyc - 1);
       const info = ex.a[idx] || ex.a[0];
+      const exGroup = getExerciseGroup(info.n);
       const restSec = getRest(ex);
       const defRepsNum = parseInt(ex.reps, 10) || 10;
       const totalSets = getTotalSets(ex);
+      const hasVideo = Boolean(getExerciseVideo(info.n));
+      const escapedName = info.n.replace(/'/g, "\'");
 
       let sets = "";
       let hitMax24 = false;
@@ -951,14 +1413,26 @@
         ? `<div class="max-tip">⚡ <strong>Limite de 24kg atingido:</strong> para continuar progredindo sem mais carga, use descida lenta (3-4s), pausa de 2s no ponto difícil, +1–2 reps ou troque para a variação unilateral/ciclo seguinte.</div>`
         : "";
 
+      const mediaBtn = hasVideo
+        ? `<button class="btn-media" onclick="toggleMediaDrawer('${ex.id}')">${openMedia[ex.id] ? "✕ Fechar" : "🎬 Execução"}</button>`
+        : `<button style="font-size:11px;padding:6px 7px" title="Vincular vídeo ou animação a este exercício" onclick="editExerciseVideo('${escapedName}','${ex.id}',false)">🔗 Vídeo</button>`;
+
+      const rightAction = isExtra
+        ? `<button class="btn-danger" style="font-size:11px;padding:6px 8px" onclick="removeSingleExtraExercise('${ex.id}')">Remover</button>`
+        : `<button onclick="toggleAlt('${ex.id}')">⇄ Variação (${idx+1}/3)</button>`;
+
       return `
-        <div class="box ${isOpt?"opt":""}">
+        <div class="box ${isOpt?"opt":""} ${isExtra?"custom-ex":""}">
           <div class="top">
             <span class="meta">#${i+1} • ${totalSets}×${ex.reps}</span>
-            <button onclick="toggleAlt('${ex.id}')">⇄ Variação (${idx+1}/3)</button>
+            <div class="ex-actions">
+              ${mediaBtn}
+              ${rightAction}
+            </div>
           </div>
           <div class="ex-title">${info.n}</div>
           <div class="tags">
+            ${exGroup ? `<span class="tag muscle">${exGroup}</span>` : ""}
             <span class="tag angle">📐 ${info.ang}</span>
             <span class="tag">Sugestão: ${ex.w}kg</span>
             ${maxBadge}
@@ -968,6 +1442,7 @@
             </label>
           </div>
           ${maxTip}
+          ${renderMediaBlock(info.n, ex.id)}
           <div class="cue">${info.c}</div>
           ${sets}
           <div class="set-controls">
@@ -985,8 +1460,18 @@
       document.getElementById("cycBtn").textContent = cycNames[db.cyc - 1];
       document.getElementById("sessionNote").value = db.notes[day] || "";
 
-      document.getElementById("baseList").innerHTML = d.base.map((ex, i) => renderEx(ex, i, false)).join("");
-      document.getElementById("optList").innerHTML = d.opt.map((ex, i) => renderEx(ex, i, true)).join("");
+      document.getElementById("baseList").innerHTML = d.base.map((ex, i) => renderEx(ex, i, false, false)).join("");
+      document.getElementById("optList").innerHTML = d.opt.map((ex, i) => renderEx(ex, i, true, false)).join("");
+
+      const extras = getDayExtras();
+      const extraSec = document.getElementById("extraDaySection");
+      if (extras.length) {
+        extraSec.style.display = "block";
+        document.getElementById("extraDayList").innerHTML = extras.map((ex, i) => renderEx(ex, i, false, true)).join("");
+      } else {
+        extraSec.style.display = "none";
+        document.getElementById("extraDayList").innerHTML = "";
+      }
 
       let tot = 0, ok = 0;
       d.base.forEach(ex => {
