@@ -4,445 +4,182 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#0d0f12" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>HomeGym B3 Move — 24kg</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/png" href="icon.png" />
-  <link rel="apple-touch-icon" href="icon.png" />
   <style>
-    :root {
-      --bg: #0d0f12; --card: #161a20; --elev: #1e232b;
-      --border: #2a303b; --text: #f3f4f6; --muted: #9ca3af;
-      --gold: #e5a93c; --gold-bg: rgba(229,169,60,.14);
-      --green: #10b981; --green-bg: rgba(16,185,129,.14);
-      --danger: #ef4444;
-    }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body {
-      margin: 0; font-family: system-ui, -apple-system, sans-serif;
-      background: var(--bg); color: var(--text); padding-bottom: 115px;
-    }
-    header {
-      position: sticky; top: 0; z-index: 20;
-      background: rgba(13,15,18,.95); backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px;
-    }
-    .brand { display: flex; align-items: center; gap: 10px; }
-    .brand-icon {
-      width: 34px; height: 34px; border-radius: 8px;
-      background: var(--gold-bg); border: 1px solid var(--gold);
-      display: grid; place-items: center; color: var(--gold); font-weight: 800; font-size: 13px;
-    }
-    .brand h1 { margin: 0; font-size: 14px; font-weight: 800; }
-    .brand p { margin: 2px 0 0; font-size: 11px; color: var(--muted); }
-    .wrap { max-width: 680px; margin: 0 auto; padding: 14px 16px; }
-    .tabs { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
-    .tab {
-      background: var(--card); border: 1px solid var(--border); color: var(--muted);
-      border-radius: 12px; padding: 10px 6px; text-align: center; cursor: pointer;
-    }
-    .tab strong { display: block; font-size: 13px; color: var(--text); }
-    .tab span { font-size: 11px; }
-    .tab.active { background: var(--gold); border-color: var(--gold); color: #111; }
-    .tab.active strong, .tab.active span { color: #111; }
-    .sub-tabs {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 4px; margin-bottom: 14px;
-    }
-    .sub-tab {
-      background: transparent; border: none; color: var(--muted);
-      padding: 9px 8px; border-radius: 9px; font-size: 12px; font-weight: 700;
-    }
-    .sub-tab.active { background: var(--gold); color: #111; }
-    .box {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 14px; padding: 14px; margin-bottom: 12px;
-    }
-    .box.opt { border-color: rgba(229,169,60,.35); }
-    .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-    .sec-title {
-      display: flex; justify-content: space-between; align-items: center;
-      margin: 16px 0 8px; font-size: 11px; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .6px; color: var(--muted);
-    }
-    .badge {
-      background: var(--green-bg); color: var(--green);
-      border: 1px solid rgba(16,185,129,.35); border-radius: 999px;
-      padding: 4px 10px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap;
-    }
-    .bar { height: 7px; background: #232832; border-radius: 999px; overflow: hidden; margin-top: 8px; }
-    .fill { height: 100%; background: var(--gold); width: 0%; transition: .25s; }
-    .ex-title { font-size: 15px; font-weight: 700; margin: 4px 0; }
-    .meta { font-size: 11px; color: var(--muted); font-weight: 600; }
-    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; align-items: center; }
-    .tag {
-      font-size: 11px; padding: 4px 8px; border-radius: 8px;
-      background: var(--elev); border: 1px solid var(--border); color: var(--muted);
-    }
-    .tag.angle {
-      color: var(--gold); background: var(--gold-bg); border-color: rgba(229,169,60,.35); font-weight: 600;
-    }
-    .rest-edit {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-size: 11px; color: var(--text); background: var(--elev);
-      border: 1px solid var(--border); border-radius: 8px; padding: 2px 6px;
-    }
-    .rest-edit input {
-      width: 50px; padding: 3px 4px; font-size: 11px; text-align: center;
-      background: #111419; border: 1px solid #353c4a; border-radius: 6px;
-    }
-    .cue {
-      font-size: 12px; color: #cbd5e1; margin: 9px 0 10px; line-height: 1.4;
-      background: #111419; border: 1px solid #222731; border-radius: 9px; padding: 8px 10px;
-    }
-    .set {
-      display: grid; grid-template-columns: 36px 1fr 1fr 40px; gap: 6px;
-      align-items: center; margin-top: 6px; background: #111419;
-      padding: 6px 8px; border-radius: 10px; border: 1px solid #222731;
-    }
-    .set.done { border-color: rgba(16,185,129,.45); background: rgba(16,185,129,.06); }
-    select, input, button {
-      background: var(--elev); color: var(--text); border: 1px solid var(--border);
-      border-radius: 8px; padding: 7px 6px; font-size: 13px; font-weight: 600;
-    }
-    button { cursor: pointer; }
-    .btn-gold { background: var(--gold-bg); color: var(--gold); border-color: rgba(229,169,60,.45); }
-    .btn-finish {
-      width: 100%; margin-top: 14px; padding: 14px; border-radius: 14px;
-      background: var(--green); border: none; color: #051b11;
-      font-size: 15px; font-weight: 800; display: flex; align-items: center;
-      justify-content: center; gap: 8px;
-    }
-    .chk.done { background: var(--green); color: #08120b; border-color: var(--green); }
-    .timer {
-      position: fixed; bottom: 76px; left: 50%; transform: translateX(-50%);
-      width: calc(100% - 24px); max-width: 656px; background: #181d25;
-      border: 1px solid var(--gold); border-radius: 14px; padding: 10px 14px;
-      display: none; justify-content: space-between; align-items: center; z-index: 30;
-    }
-    .timer.show { display: flex; }
-    .t-num { font-size: 20px; font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums; }
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 25;
-      background: rgba(13,15,18,.97); border-top: 1px solid var(--border);
-      display: grid; grid-template-columns: repeat(3, 1fr); padding: 6px 8px;
-    }
-    .nav-item {
-      background: transparent; border: none; color: var(--muted);
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
-      padding: 7px 4px; border-radius: 12px; font-size: 11px; font-weight: 700;
-    }
-    .nav-item.active { background: var(--gold-bg); color: var(--gold); }
-    .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
-    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
-    .stat-val { font-size: 19px; font-weight: 800; color: var(--gold); margin-top: 4px; }
-    .delta { font-size: 11px; font-weight: 700; margin-top: 2px; }
-    .delta.up { color: var(--green); }
-    .delta.down { color: #60a5fa; }
-    .hist-item { background: #111419; border: 1px solid #222731; border-radius: 10px; padding: 10px; margin-top: 8px; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-    .field label { display: block; font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
-    .field input { width: 100%; text-align: left; padding: 9px 10px; }
-    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
-    .chip { font-size: 11px; padding: 5px 9px; border-radius: 999px; }
-    .chip.active { background: var(--gold); color: #111; border-color: var(--gold); }
-    .body-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
-    .body-pill {
-      font-size: 11px; background: var(--elev); border: 1px solid var(--border);
-      padding: 3px 7px; border-radius: 6px; color: #d1d5db;
-    }
+    :root{--bg:#0d0f12;--card:#161a20;--elev:#1e232b;--border:#2a303b;--text:#f3f4f6;--muted:#9ca3af;--gold:#e5a93c;--gold-bg:rgba(229,169,60,.14);--green:#10b981;--green-bg:rgba(16,185,129,.14);--danger:#ef4444}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);padding-bottom:115px}
+    header{position:sticky;top:0;z-index:20;background:rgba(13,15,18,.95);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{width:34px;height:34px;border-radius:8px;background:var(--gold-bg);border:1px solid var(--gold);display:grid;place-items:center;color:var(--gold);font-weight:800;font-size:13px}
+    h1{margin:0;font-size:14px;font-weight:800}
+    .sub{margin:2px 0 0;font-size:11px;color:var(--muted)}
+    .wrap{max-width:680px;margin:0 auto;padding:14px 16px}
+    .tabs,.subtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+    .subtabs{grid-template-columns:1fr 1fr;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:4px}
+    .tab{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:12px;padding:9px 6px;text-align:center;cursor:pointer}
+    .tab strong{display:block;font-size:13px;color:var(--text)}
+    .tab span{font-size:11px}
+    .tab.active,.subtab.active{background:var(--gold);border-color:var(--gold);color:#111}
+    .tab.active strong,.tab.active span{color:#111}
+    .subtab{background:transparent;border:none;color:var(--muted);padding:8px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer}
+    .box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px;margin-bottom:12px}
+    .box.opt{border-color:rgba(229,169,60,.35)}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .sec{display:flex;justify-content:space-between;margin:14px 0 7px;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted)}
+    .badge{background:var(--green-bg);color:var(--green);border:1px solid rgba(16,185,129,.35);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer}
+    .bar{height:7px;background:#232832;border-radius:999px;overflow:hidden;margin-top:8px}
+    .fill{height:100%;background:var(--gold);width:0;transition:.2s}
+    .title{font-size:15px;font-weight:700;margin:4px 0}
+    .meta{font-size:11px;color:var(--muted);font-weight:600}
+    .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;align-items:center}
+    .tag{font-size:11px;padding:4px 8px;border-radius:8px;background:var(--elev);border:1px solid var(--border);color:var(--muted)}
+    .tag.ang{color:var(--gold);background:var(--gold-bg);border-color:rgba(229,169,60,.35);font-weight:600}
+    .rest-lbl{display:inline-flex;align-items:center;gap:4px;font-size:11px;background:var(--elev);border:1px solid var(--border);border-radius:8px;padding:2px 6px}
+    .rest-lbl input{width:48px;padding:2px 4px;font-size:11px;text-align:center;background:#111419;border:1px solid #353c4a;border-radius:6px}
+    .cue{font-size:12px;color:#cbd5e1;margin:8px 0 10px;line-height:1.4;background:#111419;border:1px solid #222731;border-radius:9px;padding:8px 10px}
+    .set{display:grid;grid-template-columns:34px 1fr 1fr 38px;gap:6px;align-items:center;margin-top:6px;background:#111419;padding:6px 8px;border-radius:10px;border:1px solid #222731}
+    .set.done{border-color:rgba(16,185,129,.45);background:rgba(16,185,129,.06)}
+    select,input,button{background:var(--elev);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px 6px;font-size:13px;font-weight:600}
+    button{cursor:pointer}
+    .gold{background:var(--gold-bg);color:var(--gold);border-color:rgba(229,169,60,.45)}
+    .finish{width:100%;margin-top:12px;padding:13px;border-radius:14px;background:var(--green);border:none;color:#051b11;font-size:14px;font-weight:800}
+    .chk.done{background:var(--green);color:#08120b;border-color:var(--green)}
+    .timer{position:fixed;bottom:74px;left:50%;transform:translateX(-50%);width:calc(100% - 24px);max-width:656px;background:#181d25;border:1px solid var(--gold);border-radius:14px;padding:10px 14px;display:none;justify-content:space-between;align-items:center;z-index:30}
+    .timer.show{display:flex}
+    .tnum{font-size:20px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums}
+    .nav{position:fixed;bottom:0;left:0;right:0;z-index:25;background:rgba(13,15,18,.97);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(3,1fr);padding:6px 8px}
+    .nbtn{background:transparent;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;border-radius:12px;font-size:11px;font-weight:700}
+    .nbtn.active{background:var(--gold-bg);color:var(--gold)}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+    .scard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px}
+    .sval{font-size:18px;font-weight:800;color:var(--gold);margin-top:3px}
+    .delta{font-size:11px;font-weight:700;margin-top:2px;color:var(--green)}
+    .fld label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
+    .fld input{width:100%}
+    .hitem{background:#111419;border:1px solid #222731;border-radius:10px;padding:9px;margin-top:7px}
+    .pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+    .pill{font-size:11px;background:var(--elev);border:1px solid var(--border);padding:3px 7px;border-radius:6px}
   </style>
 </head>
 <body>
   <header>
     <div class="brand">
-      <div class="brand-icon">B3</div>
-      <div>
-        <h1>HOMEGYM B3 MOVE</h1>
-        <p>Par 24kg • Full Body 3x</p>
-      </div>
+      <div class="logo">B3</div>
+      <div><h1>HOMEGYM B3 MOVE</h1><p class="sub">Par 24kg • Full Body 3x</p></div>
     </div>
-    <button class="btn-gold" onclick="installApp()">Instalar App</button>
+    <button class="gold" onclick="installApp()">Instalar App</button>
   </header>
 
   <div class="wrap">
-    <!-- ABA 1: TREINO -->
-    <div id="viewTreino">
+    <div id="vTreino">
       <div class="tabs">
-        <div class="tab active" onclick="setDay(0)"><strong>Dia 1</strong><span>Ênfase Peito</span></div>
-        <div class="tab" onclick="setDay(1)"><strong>Dia 2</strong><span>Ênfase Pernas</span></div>
+        <div class="tab active" onclick="setDay(0)"><strong>Dia 1</strong><span>Peito</span></div>
+        <div class="tab" onclick="setDay(1)"><strong>Dia 2</strong><span>Pernas</span></div>
         <div class="tab" onclick="setDay(2)"><strong>Dia 3</strong><span>Costas/Ombros</span></div>
       </div>
-
       <div class="box">
         <div class="top">
-          <div>
-            <strong id="dTitle" style="font-size:16px;display:block"></strong>
-            <div class="meta" id="dSub"></div>
-          </div>
-          <button class="badge" id="cycBtn" onclick="nextCycle()">Ciclo 1 • Base</button>
+          <div><strong id="dTitle" style="font-size:15px;display:block"></strong><div class="meta" id="dSub"></div></div>
+          <button class="badge" id="cycBtn" onclick="nextCycle()">Ciclo 1</button>
         </div>
-        <div class="meta" style="margin-top:10px" id="progTxt">0/0 séries da base (0%)</div>
-        <div class="bar"><div class="fill" id="progBar"></div></div>
+        <div class="meta" style="margin-top:8px" id="pTxt">0/0 séries (0%)</div>
+        <div class="bar"><div class="fill" id="pBar"></div></div>
       </div>
-
-      <div class="sec-title">
-        <span>Base Prioritária (5)</span>
-        <span>Toque em ✓ para descansar</span>
-      </div>
+      <div class="sec"><span>Base Prioritária</span><span>✓ inicia descanso</span></div>
       <div id="baseList"></div>
-
-      <div class="sec-title">
-        <span>Opcionais (Tempo / Disposição)</span>
-      </div>
+      <div class="sec"><span>Opcionais</span></div>
       <div id="optList"></div>
-
-      <button class="btn-finish" onclick="finishWorkout()">✓ Concluir e Salvar Treino</button>
-      <div style="margin-top:10px;">
-        <button style="width:100%" onclick="clearDone()">Limpar Checks da Sessão Atual</button>
-      </div>
+      <button class="finish" onclick="finishWorkout()">✓ Concluir e Salvar Treino</button>
+      <button style="width:100%;margin-top:8px" onclick="clearDone()">Limpar Checks da Sessão</button>
     </div>
 
-    <!-- ABA 2: CICLOS & VARIAÇÕES -->
-    <div id="viewCiclos" style="display:none">
+    <div id="vCiclos" style="display:none">
       <div class="box">
-        <strong style="font-size:16px;display:block">Ciclos &amp; Variações (3 Ciclos)</strong>
-        <p class="meta" style="margin:4px 0 12px">Alterne o ciclo global ou escolha a variação por exercício.</p>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
-          <button id="cBtn1" onclick="setCycle(1)">Ciclo 1<br><span style="font-size:10px;font-weight:400">Base</span></button>
-          <button id="cBtn2" onclick="setCycle(2)">Ciclo 2<br><span style="font-size:10px;font-weight:400">Ângulos</span></button>
-          <button id="cBtn3" onclick="setCycle(3)">Ciclo 3<br><span style="font-size:10px;font-weight:400">24kg Max</span></button>
+        <strong style="font-size:15px;display:block">Ciclos &amp; Variações</strong>
+        <div class="grid2" style="grid-template-columns:repeat(3,1fr);margin-top:10px;margin-bottom:0">
+          <button id="cb1" onclick="setCycle(1)">Ciclo 1</button>
+          <button id="cb2" onclick="setCycle(2)">Ciclo 2</button>
+          <button id="cb3" onclick="setCycle(3)">Ciclo 3</button>
         </div>
       </div>
-      <div id="ciclosList"></div>
+      <div id="cycList"></div>
     </div>
 
-    <!-- ABA 3: EVOLUÇÃO (CARGAS + COMPOSIÇÃO CORPORAL) -->
-    <div id="viewEvolucao" style="display:none">
-      <div class="sub-tabs">
-        <button class="sub-tab active" id="subCargas" onclick="switchEvoTab('cargas')">🏋️ Cargas &amp; Treinos</button>
-        <button class="sub-tab" id="subCorpo" onclick="switchEvoTab('corpo')">⚖️ Composição Corporal</button>
+    <div id="vEvo" style="display:none">
+      <div class="subtabs">
+        <button class="subtab active" id="stCargas" onclick="setSub('cargas')">🏋️ Cargas &amp; Treinos</button>
+        <button class="subtab" id="stCorpo" onclick="setSub('corpo')">⚖️ Composição Corporal</button>
       </div>
 
-      <!-- SUB-ABA: CARGAS & TREINOS -->
-      <div id="evoCargas">
-        <div class="stat-grid" id="statsGrid"></div>
-        <div class="box">
-          <strong style="font-size:15px;display:block">Recordes Pessoais (PRs)</strong>
-          <div class="meta" style="margin-bottom:8px">Maior carga registrada por exercício</div>
-          <div id="prsList"></div>
-        </div>
-        <div class="box">
-          <strong style="font-size:15px;display:block">Histórico de Sessões</strong>
-          <div id="histList"></div>
-        </div>
+      <div id="subCargasView">
+        <div class="grid2" id="cargaStats"></div>
+        <div class="box"><strong style="font-size:14px">Recordes Pessoais (PRs)</strong><div id="prList" style="margin-top:6px"></div></div>
+        <div class="box"><strong style="font-size:14px">Histórico de Sessões</strong><div id="sessList"></div></div>
       </div>
 
-      <!-- SUB-ABA: COMPOSIÇÃO CORPORAL -->
-      <div id="evoCorpo" style="display:none">
+      <div id="subCorpoView" style="display:none">
         <div class="box">
           <div class="top">
-            <div>
-              <strong style="font-size:15px;display:block">Nova Medição Corporal</strong>
-              <span class="meta">Preencha os dados da balança / bioimpedância</span>
-            </div>
-            <div style="width:92px">
-              <label style="font-size:10px;color:var(--muted);display:block">Altura (cm)</label>
-              <input type="number" id="inAltura" placeholder="178" style="width:100%;padding:5px 6px;font-size:12px" onchange="saveHeight(this.value)" />
-            </div>
+            <strong style="font-size:14px">Nova Medição Corporal</strong>
+            <div style="width:95px"><label class="meta">Altura (cm)</label><input type="number" id="bAlt" placeholder="178" style="width:100%;padding:4px 6px" onchange="setHeight(this.value)" /></div>
           </div>
-
-          <div class="form-grid">
-            <div class="field">
-              <label>Data</label>
-              <input type="date" id="inData" />
-            </div>
-            <div class="field">
-              <label>Peso (kg)</label>
-              <input type="number" step="0.1" id="inPeso" placeholder="Ex: 82.5" oninput="autoCalcBody()" />
-            </div>
-            <div class="field">
-              <label>Gordura Corporal (%)</label>
-              <input type="number" step="0.1" id="inFat" placeholder="Ex: 16.5" oninput="autoCalcBody()" />
-            </div>
-            <div class="field">
-              <label>Massa Livre de Gordura (kg)</label>
-              <input type="number" step="0.1" id="inLean" placeholder="Auto ou manual" />
-            </div>
-            <div class="field">
-              <label>Gordura Subcutânea (%)</label>
-              <input type="number" step="0.1" id="inSub" placeholder="Ex: 14.2" />
-            </div>
-            <div class="field">
-              <label>IMC</label>
-              <input type="number" step="0.1" id="inImc" placeholder="Auto ou manual" />
-            </div>
+          <div class="grid2" style="margin-top:10px">
+            <div class="fld"><label>Data</label><input type="date" id="bData" /></div>
+            <div class="fld"><label>Peso (kg)</label><input type="number" step="0.1" id="bPeso" oninput="calcBody()" /></div>
+            <div class="fld"><label>Gordura Corporal (%)</label><input type="number" step="0.1" id="bFat" oninput="calcBody()" /></div>
+            <div class="fld"><label>Massa livre de gordura (kg)</label><input type="number" step="0.1" id="bLean" /></div>
+            <div class="fld"><label>Gordura subcutânea (%)</label><input type="number" step="0.1" id="bSub" /></div>
+            <div class="fld"><label>IMC</label><input type="number" step="0.1" id="bImc" /></div>
           </div>
-
-          <button class="btn-finish" style="margin-top:12px;padding:12px" onclick="saveBodyEntry()">+ Salvar Medição Corporal</button>
+          <button class="finish" style="margin-top:6px;padding:11px" onclick="addBody()">+ Salvar Medição</button>
         </div>
 
-        <div class="stat-grid" id="bodyCards"></div>
+        <div class="grid2" id="bodySummary"></div>
 
-        <div class="box" id="chartBox" style="display:none">
-          <strong style="font-size:15px;display:block">Curva de Evolução</strong>
-          <div class="chip-row">
-            <button class="chip active" id="m_weight" onclick="setMetric('weight')">Peso (kg)</button>
-            <button class="chip" id="m_fat" onclick="setMetric('fat')">Gordura (%)</button>
-            <button class="chip" id="m_lean" onclick="setMetric('lean')">Massa Livre (kg)</button>
-            <button class="chip" id="m_sub" onclick="setMetric('sub')">Subcutânea (%)</button>
-            <button class="chip" id="m_imc" onclick="setMetric('imc')">IMC</button>
+        <div class="box" id="chartCard" style="display:none">
+          <strong style="font-size:14px">Evolução Gráfica</strong>
+          <div class="pills" style="margin:8px 0">
+            <button class="pill gold" id="m_weight" onclick="setMetric('weight')">Peso</button>
+            <button class="pill" id="m_fat" onclick="setMetric('fat')">Gordura %</button>
+            <button class="pill" id="m_lean" onclick="setMetric('lean')">Massa Livre</button>
+            <button class="pill" id="m_sub" onclick="setMetric('sub')">Subcutânea %</button>
+            <button class="pill" id="m_imc" onclick="setMetric('imc')">IMC</button>
           </div>
-          <div id="bodyChart"></div>
+          <div id="chartArea"></div>
         </div>
 
-        <div class="box">
-          <strong style="font-size:15px;display:block">Histórico de Medições</strong>
-          <div id="bodyHistList"></div>
-        </div>
+        <div class="box"><strong style="font-size:14px">Histórico Corporal</strong><div id="bodyList"></div></div>
       </div>
 
-      <!-- BACKUP GERAL (TREINOS + MEDIDAS) -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
-        <button class="btn-gold" onclick="backup()">Exportar Backup</button>
-        <button onclick="document.getElementById('impFile').click()">Importar Backup</button>
-        <input type="file" id="impFile" accept=".json" style="display:none" onchange="importBackup(event)" />
+      <div class="grid2">
+        <button class="gold" onclick="exportData()">Exportar Backup</button>
+        <button onclick="document.getElementById('impInput').click()">Importar Backup</button>
+        <input type="file" id="impInput" accept=".json" style="display:none" onchange="importData(event)" />
       </div>
     </div>
   </div>
 
-  <!-- CRONÔMETRO -->
   <div class="timer" id="timer">
-    <div>
-      <div style="font-size:11px;color:var(--muted);font-weight:700">DESCANSO</div>
-      <div class="t-num" id="tDisp">01:30</div>
-    </div>
-    <div style="display:flex;gap:6px;">
-      <button onclick="addSec(-15)">-15s</button>
-      <button onclick="addSec(15)">+15s</button>
-      <button class="btn-gold" onclick="stopTimer()">Pular</button>
+    <div><div class="meta">DESCANSO</div><div class="tnum" id="tDisp">01:30</div></div>
+    <div style="display:flex;gap:6px">
+      <button onclick="addTime(-15)">-15s</button>
+      <button onclick="addTime(15)">+15s</button>
+      <button class="gold" onclick="stopTimer()">Pular</button>
     </div>
   </div>
 
-  <!-- NAVEGAÇÃO INFERIOR -->
-  <nav class="bottom-nav">
-    <button class="nav-item active" id="navTreino" onclick="switchNav('treino')">
-      <span>🏋️</span>
-      <span>Treino</span>
-    </button>
-    <button class="nav-item" id="navCiclos" onclick="switchNav('ciclos')">
-      <span>🔄</span>
-      <span>Ciclos &amp; Variações</span>
-    </button>
-    <button class="nav-item" id="navEvolucao" onclick="switchNav('evolucao')">
-      <span>📈</span>
-      <span>Evolução</span>
-    </button>
+  <nav class="nav">
+    <button class="nbtn active" id="nTreino" onclick="setNav('treino')"><span>🏋️</span><span>Treino</span></button>
+    <button class="nbtn" id="nCiclos" onclick="setNav('ciclos')"><span>🔄</span><span>Ciclos &amp; Variações</span></button>
+    <button class="nbtn" id="nEvo" onclick="setNav('evo')"><span>📈</span><span>Evolução</span></button>
   </nav>
 
   <script>
-    const PESOS = [2.5,3.5,4.5,5.5,6.5,8,9,10,11.5,13.5,16,18,20.5,22.5,24];
-    const TREINOS = [
-      {
-        t: "Dia 1: Full Body (Ênfase Peito)", s: "Peitoral, Quadríceps, Costas, Ombros e Core",
-        base: [
-          { id:"d1_1", sets:4, reps:"8-12", rest:90, w:16, a:[
-            { n:"Supino Reto com Halteres", ang:"Banco 0° (Reto) • Assento 0°", c:"Desça os cotovelos a ~45° do tronco até a linha do peitoral e empurre com firmeza." },
-            { n:"Supino Reto Pegada Neutra", ang:"Banco 0° (Reto) • Assento 0°", c:"Palmas voltadas uma para a outra; excelente conforto articular." },
-            { n:"Supino Reto com Pausa (2s)", ang:"Banco 0° • Pausa no fundo", c:"Segure 2 segundos na linha do peito para maior tensão." }
-          ]},
-          { id:"d1_2", sets:3, reps:"8-12", rest:90, w:13.5, a:[
-            { n:"Agachamento Búlgaro", ang:"Peito do pé apoiado no B3", c:"Tronco levemente inclinado; desça controlado sobre o piso de 15mm." },
-            { n:"Afundo Estático com Halteres", ang:"Piso 15mm ao lado do banco", c:"Mantenha a base firme e empurre o chão pelo calcanhar." },
-            { n:"Búlgaro com Cadência 3-1-1", ang:"Pé traseiro no B3 (0°)", c:"3s descendo e 1s de pausa embaixo." }
-          ]},
-          { id:"d1_3", sets:3, reps:"8-12", rest:75, w:18, a:[
-            { n:"Remada Serrote Unilateral", ang:"Mão e joelho apoiados no B3 (0°)", c:"Puxe o haltere em direção ao quadril mantendo a coluna neutra." },
-            { n:"Remada Peito Apoiado Bilateral", ang:"Banco 40° • Assento 15°", c:"Apoie o peito no encosto e puxe os dois halteres juntos." },
-            { n:"Remada Serrote com Pausa 2s", ang:"Apoio firme no B3", c:"Segure 2s no topo contraindo forte o dorsal." }
-          ]},
-          { id:"d1_4", sets:3, reps:"12-15", rest:60, w:8, a:[
-            { n:"Elevação Lateral", ang:"Em pé ou banco 85°", c:"Eleve os braços até a altura dos ombros sem balançar o tronco." },
-            { n:"Elevação Lateral Inclinada", ang:"Banco 60° • Apoio lateral", c:"Segure no banco e execute com foco no deltoide lateral." },
-            { n:"Elevação Lateral Controlada", ang:"Em pé sobre piso 15mm", c:"Descida lenta em 3 segundos." }
-          ]},
-          { id:"d1_5", sets:3, reps:"12-15", rest:60, w:2.5, a:[
-            { n:"Abdominal Infra no Banco", ang:"Banco 0° (Reto)", c:"Segure firme no banco e eleve o quadril com controle." },
-            { n:"Abdominal Supra Curto", ang:"Banco 0° • Pés apoiados", c:"Suba apenas as escápulas soltando o ar." },
-            { n:"Abdominal Canivete no Banco", ang:"Banco 0° (Reto)", c:"Coordene tronco e pernas sem trancos na lombar." }
-          ]}
-        ],
-        opt: [
-          { id:"d1_o1", sets:2, reps:"10-12", rest:75, w:13.5, a:[
-            { n:"Supino Inclinado 22°", ang:"Banco 22° • Assento 15°", c:"Inclinação baixa para ativar peitoral superior." },
-            { n:"Crucifixo Inclinado 22°", ang:"Banco 22° • Assento 15°", c:"Cotovelos semiflexionados, abra até alongar bem." },
-            { n:"Press Fechado (Crush Press)", ang:"Banco 22° • Halteres unidos", c:"Pressione um haltere contra o outro durante o movimento." }
-          ]},
-          { id:"d1_o2", sets:2, reps:"10-12", rest:60, w:9, a:[
-            { n:"Tríceps Testa no Banco", ang:"Banco 0° (Reto)", c:"Desça ao lado das têmporas com controle." },
-            { n:"Tríceps Francês Unilateral", ang:"Banco 85° (Encosto alto)", c:"Mantenha o braço próximo à orelha e estenda o cotovelo." },
-            { n:"Tríceps Coice Apoiado no Banco", ang:"Banco 40° • Peito apoiado", c:"Estenda bem o cotovelo segurando 1s no pico." }
-          ]}
-        ]
-      },
-      {
-        t: "Dia 2: Full Body (Ênfase Pernas)", s: "Posterior, Quadríceps, Ombros, Costas e Core",
-        base: [
-          { id:"d2_1", sets:4, reps:"10-12", rest:90, w:20.5, a:[
-            { n:"Stiff / RDL com Halteres", ang:"Piso 15mm", c:"Quadril para trás, halteres rentes às pernas e coluna neutra." },
-            { n:"Stiff Unilateral Apoiado", ang:"Mão livre apoiada no B3", c:"Maior exigência de estabilidade no posterior de coxa." },
-            { n:"RDL com Pausa 2s", ang:"Piso 15mm • Pausa no alongamento", c:"Segure 2s no alongamento máximo dos isquiotibiais." }
-          ]},
-          { id:"d2_2", sets:3, reps:"12-15", rest:90, w:22.5, a:[
-            { n:"Agachamento Goblet (1 Haltere)", ang:"Piso 15mm", c:"Segure um dumbbell junto ao peito e agache com amplitude." },
-            { n:"Agachamento Sumô (1 Haltere)", ang:"Piso 15mm • Base aberta", c:"Pontas dos pés levemente para fora e tronco estável." },
-            { n:"Agachamento Frontal (2 Halteres)", ang:"Piso 15mm • Halteres nos ombros", c:"Tronco vertical e amplitude controlada." }
-          ]},
-          { id:"d2_3", sets:3, reps:"8-12", rest:90, w:13.5, a:[
-            { n:"Desenvolvimento de Ombros", ang:"Banco 60° a 85° • Assento 15°", c:"Costas bem apoiadas e empurre acima da cabeça." },
-            { n:"Desenvolvimento Arnold", ang:"Banco 75° • Assento 15°", c:"Gire os punhos durante a subida com controle." },
-            { n:"Desenvolvimento Unilateral", ang:"Banco 85° • 1 Haltere por vez", c:"Foco em estabilidade de core e simetria." }
-          ]},
-          { id:"d2_4", sets:3, reps:"10-12", rest:75, w:16, a:[
-            { n:"Remada Peito Apoiado 40°", ang:"Banco 40° • Assento 15°", c:"Feche bem as escápulas no topo de cada repetição." },
-            { n:"Pullover no Banco Reto", ang:"Banco 0° (Reto)", c:"Segure um haltere com as duas mãos e trabalhe alongamento dorsal." },
-            { n:"Remada Supinada no Banco 40°", ang:"Banco 40° • Palmas para cima", c:"Ênfase na porção inferior do dorsal." }
-          ]},
-          { id:"d2_5", sets:3, reps:"35-45s", rest:60, w:2.5, a:[
-            { n:"Prancha Abdominal", ang:"Piso / colchonete", c:"Contraia abdômen e glúteos mantendo coluna alinhada." },
-            { n:"Prancha com Toque no Ombro", ang:"Piso / colchonete", c:"Evite balançar o quadril ao alternar o apoio das mãos." },
-            { n:"Prancha RKC (Tensão Máxima)", ang:"Piso / colchonete", c:"Tensão total por 25-35s." }
-          ]}
-        ],
-        opt: [
-          { id:"d2_o1", sets:3, reps:"12-15", rest:45, w:16, a:[
-            { n:"Panturrilha Unilateral em Pé", ang:"Mão no B3 • 1 Haltere", c:"Suba na ponta do pé, segure 1s no topo e desça devagar." },
-            { n:"Panturrilha Sentado com Carga", ang:"Sentado no B3 • Halteres nas coxas", c:"Amplitude completa no banco." },
-            { n:"Panturrilha Unilateral Pausa 2s", ang:"Mão no B3", c:"2 segundos embaixo para eliminar o impulso." }
-          ]},
-          { id:"d2_o2", sets:2, reps:"12-15", rest:60, w:20.5, a:[
-            { n:"Elevação Pélvica no Banco", ang:"Escápulas apoiadas no B3 (0°)", c:"Contraia forte os glúteos no topo." },
-            { n:"Ponte de Glúteo Unilateral", ang:"Escápulas no B3 • 1 Perna", c:"Ótima variação unilateral com a carga disponível." },
-            { n:"Elevação Pélvica Pausa 3s", ang:"Escápulas no B3 (0°)", c:"Segure 3 segundos no pico de contração." }
-          ]}
-        ]
-      },
-      {
-        t: "Dia 3: Full Body (Ênfase Costas/Ombros)", s: "Dorsais, Deltoides, Peitoral Superior e Core",
-        base: [
-          { id:"d3_1", sets:4, reps:"8-12", rest:90, w:20.5, a:[
-            { n:"Remada Unilateral Pesada", ang:"Apoio no B3 (0° ou 22°)", c:"Carga firme com descida controlada em 3 segundos." },
-            { n:"Remada Curvada Bilateral", ang:"Piso 15mm • Tronco ~45°", c:"Puxe os dois halteres juntos até a linha do quadril." },
-            { n:"Remada Unilateral Alta Repetição", ang:"Apoio firme no B3", c:"12 a 15 repetições controladas." }
-          ]},
-          { id:"d3_2", sets:3, reps:"8-12", rest:90, w:16, a:[
-            { n:"Supino Inclinado 22° a 40°", ang:"Banco 22° ou 40° • Assento 15°", c:"Foco na porção superior do peitoral." },
-            { n:"Crucifixo Inclinado", ang:"Banco 22°-40° • Assento 15°", c:"Abra com cotovelos semiflexionados e alongue bem." },
-            { n:"Supino Inclinado 1 e 1/4", ang:"Banco 22° • Assento 15°", c:"Desça tudo, suba 1/4, desça de novo e suba completo." }
-          ]},
-          { id:"d3_3", sets:3, reps:"12-15", rest:60, w:8, a:[
-            { n:"Crucifixo Invertido Peito Apoiado", ang:"Banco 40° • Assento 15°", c:"Foco no deltoide posterior sem impulso do tronco." },
-            { n:"Remada Alta Aberta Apoiada", ang:"Banco 40°
+    const PESOS=[2.5,3.5,4.5,5.5,6.5,8,9,10,11.5,13.5,16,18,20.5,22.5,24];
+    const TREINOS=[
+      {t:"Dia 1: Full Body (Peito)",s:"Peitoral, Pernas, Costas, Ombros e Core",base:[
+        {id:"d1_1",sets:4,reps:"8-12",rest:90,w:16,a:[{n:"Supino Reto com Halteres",ang:"Banco 0°",c:"Desça ~45° até a linha do peito e empurre com firmeza."},{n:"Supino Reto Pegada Neutra",ang:"Banco 0°",c:"Palmas frente a frente; conforto articular."},{n:"Supino Reto Pausa 2s",ang:"Banco 0°",c:"Pausa de 2s embaixo para tensão extra."}]},
+        {id:"
