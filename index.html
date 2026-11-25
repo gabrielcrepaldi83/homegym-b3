@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#0d0f12" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>HomeGym B3 Move — 24kg</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/png" href="icon.png" />
@@ -14,24 +16,13 @@
       --border: #2a303b; --text: #f3f4f6; --muted: #9ca3af;
       --gold: #e5a93c; --gold-bg: rgba(229,169,60,.14);
       --green: #10b981; --green-bg: rgba(16,185,129,.14);
+      --danger: #ef4444;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       margin: 0; font-family: system-ui, -apple-system, sans-serif;
       background: var(--bg); color: var(--text); padding-bottom: 115px;
     }
-
-    /* Oculta selo/widget injetado pelo Netlify Drop sem conta */
-    [data-netlify-deploy-id],
-    #netlify-identity-widget,
-    iframe[src*="netlify"],
-    a[href*="netlify.com"][style*="position: fixed"],
-    div[style*="z-index: 2147483647"] {
-      display: none !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-    }
-
     header {
       position: sticky; top: 0; z-index: 20;
       background: rgba(13,15,18,.95); backdrop-filter: blur(8px);
@@ -56,6 +47,16 @@
     .tab span { font-size: 11px; }
     .tab.active { background: var(--gold); border-color: var(--gold); color: #111; }
     .tab.active strong, .tab.active span { color: #111; }
+    .sub-tabs {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 4px; margin-bottom: 14px;
+    }
+    .sub-tab {
+      background: transparent; border: none; color: var(--muted);
+      padding: 9px 8px; border-radius: 9px; font-size: 12px; font-weight: 700;
+    }
+    .sub-tab.active { background: var(--gold); color: #111; }
     .box {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 14px; padding: 14px; margin-bottom: 12px;
@@ -137,8 +138,22 @@
     .nav-item.active { background: var(--gold-bg); color: var(--gold); }
     .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
     .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
-    .stat-val { font-size: 20px; font-weight: 800; color: var(--gold); margin-top: 4px; }
+    .stat-val { font-size: 19px; font-weight: 800; color: var(--gold); margin-top: 4px; }
+    .delta { font-size: 11px; font-weight: 700; margin-top: 2px; }
+    .delta.up { color: var(--green); }
+    .delta.down { color: #60a5fa; }
     .hist-item { background: #111419; border: 1px solid #222731; border-radius: 10px; padding: 10px; margin-top: 8px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .field label { display: block; font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+    .field input { width: 100%; text-align: left; padding: 9px 10px; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+    .chip { font-size: 11px; padding: 5px 9px; border-radius: 999px; }
+    .chip.active { background: var(--gold); color: #111; border-color: var(--gold); }
+    .body-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+    .body-pill {
+      font-size: 11px; background: var(--elev); border: 1px solid var(--border);
+      padding: 3px 7px; border-radius: 6px; color: #d1d5db;
+    }
   </style>
 </head>
 <body>
@@ -154,6 +169,7 @@
   </header>
 
   <div class="wrap">
+    <!-- ABA 1: TREINO -->
     <div id="viewTreino">
       <div class="tabs">
         <div class="tab active" onclick="setDay(0)"><strong>Dia 1</strong><span>Ênfase Peito</span></div>
@@ -190,6 +206,7 @@
       </div>
     </div>
 
+    <!-- ABA 2: CICLOS & VARIAÇÕES -->
     <div id="viewCiclos" style="display:none">
       <div class="box">
         <strong style="font-size:16px;display:block">Ciclos &amp; Variações (3 Ciclos)</strong>
@@ -203,18 +220,93 @@
       <div id="ciclosList"></div>
     </div>
 
+    <!-- ABA 3: EVOLUÇÃO (CARGAS + COMPOSIÇÃO CORPORAL) -->
     <div id="viewEvolucao" style="display:none">
-      <div class="stat-grid" id="statsGrid"></div>
-      <div class="box">
-        <strong style="font-size:15px;display:block">Recordes Pessoais (PRs)</strong>
-        <div class="meta" style="margin-bottom:8px">Maior carga registrada por exercício</div>
-        <div id="prsList"></div>
+      <div class="sub-tabs">
+        <button class="sub-tab active" id="subCargas" onclick="switchEvoTab('cargas')">🏋️ Cargas &amp; Treinos</button>
+        <button class="sub-tab" id="subCorpo" onclick="switchEvoTab('corpo')">⚖️ Composição Corporal</button>
       </div>
-      <div class="box">
-        <strong style="font-size:15px;display:block">Histórico de Sessões</strong>
-        <div id="histList"></div>
+
+      <!-- SUB-ABA: CARGAS & TREINOS -->
+      <div id="evoCargas">
+        <div class="stat-grid" id="statsGrid"></div>
+        <div class="box">
+          <strong style="font-size:15px;display:block">Recordes Pessoais (PRs)</strong>
+          <div class="meta" style="margin-bottom:8px">Maior carga registrada por exercício</div>
+          <div id="prsList"></div>
+        </div>
+        <div class="box">
+          <strong style="font-size:15px;display:block">Histórico de Sessões</strong>
+          <div id="histList"></div>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+
+      <!-- SUB-ABA: COMPOSIÇÃO CORPORAL -->
+      <div id="evoCorpo" style="display:none">
+        <div class="box">
+          <div class="top">
+            <div>
+              <strong style="font-size:15px;display:block">Nova Medição Corporal</strong>
+              <span class="meta">Preencha os dados da balança / bioimpedância</span>
+            </div>
+            <div style="width:92px">
+              <label style="font-size:10px;color:var(--muted);display:block">Altura (cm)</label>
+              <input type="number" id="inAltura" placeholder="178" style="width:100%;padding:5px 6px;font-size:12px" onchange="saveHeight(this.value)" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Data</label>
+              <input type="date" id="inData" />
+            </div>
+            <div class="field">
+              <label>Peso (kg)</label>
+              <input type="number" step="0.1" id="inPeso" placeholder="Ex: 82.5" oninput="autoCalcBody()" />
+            </div>
+            <div class="field">
+              <label>Gordura Corporal (%)</label>
+              <input type="number" step="0.1" id="inFat" placeholder="Ex: 16.5" oninput="autoCalcBody()" />
+            </div>
+            <div class="field">
+              <label>Massa Livre de Gordura (kg)</label>
+              <input type="number" step="0.1" id="inLean" placeholder="Auto ou manual" />
+            </div>
+            <div class="field">
+              <label>Gordura Subcutânea (%)</label>
+              <input type="number" step="0.1" id="inSub" placeholder="Ex: 14.2" />
+            </div>
+            <div class="field">
+              <label>IMC</label>
+              <input type="number" step="0.1" id="inImc" placeholder="Auto ou manual" />
+            </div>
+          </div>
+
+          <button class="btn-finish" style="margin-top:12px;padding:12px" onclick="saveBodyEntry()">+ Salvar Medição Corporal</button>
+        </div>
+
+        <div class="stat-grid" id="bodyCards"></div>
+
+        <div class="box" id="chartBox" style="display:none">
+          <strong style="font-size:15px;display:block">Curva de Evolução</strong>
+          <div class="chip-row">
+            <button class="chip active" id="m_weight" onclick="setMetric('weight')">Peso (kg)</button>
+            <button class="chip" id="m_fat" onclick="setMetric('fat')">Gordura (%)</button>
+            <button class="chip" id="m_lean" onclick="setMetric('lean')">Massa Livre (kg)</button>
+            <button class="chip" id="m_sub" onclick="setMetric('sub')">Subcutânea (%)</button>
+            <button class="chip" id="m_imc" onclick="setMetric('imc')">IMC</button>
+          </div>
+          <div id="bodyChart"></div>
+        </div>
+
+        <div class="box">
+          <strong style="font-size:15px;display:block">Histórico de Medições</strong>
+          <div id="bodyHistList"></div>
+        </div>
+      </div>
+
+      <!-- BACKUP GERAL (TREINOS + MEDIDAS) -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
         <button class="btn-gold" onclick="backup()">Exportar Backup</button>
         <button onclick="document.getElementById('impFile').click()">Importar Backup</button>
         <input type="file" id="impFile" accept=".json" style="display:none" onchange="importBackup(event)" />
@@ -222,6 +314,7 @@
     </div>
   </div>
 
+  <!-- CRONÔMETRO -->
   <div class="timer" id="timer">
     <div>
       <div style="font-size:11px;color:var(--muted);font-weight:700">DESCANSO</div>
@@ -234,6 +327,7 @@
     </div>
   </div>
 
+  <!-- NAVEGAÇÃO INFERIOR -->
   <nav class="bottom-nav">
     <button class="nav-item active" id="navTreino" onclick="switchNav('treino')">
       <span>🏋️</span>
@@ -351,336 +445,4 @@
           ]},
           { id:"d3_3", sets:3, reps:"12-15", rest:60, w:8, a:[
             { n:"Crucifixo Invertido Peito Apoiado", ang:"Banco 40° • Assento 15°", c:"Foco no deltoide posterior sem impulso do tronco." },
-            { n:"Remada Alta Aberta Apoiada", ang:"Banco 40° • Peito no banco", c:"Cotovelos abertos trabalhando posterior e trapézio." },
-            { n:"Crucifixo Invertido Unilateral", ang:"Banco 40°", c:"Amplitude estendida e controlada." }
-          ]},
-          { id:"d3_4", sets:4, reps:"12-15", rest:60, w:8, a:[
-            { n:"Elevação Lateral", ang:"Em pé ou banco 85°", c:"Controle a descida sem bater os halteres nas coxas." },
-            { n:"Elevação Frontal Alternada", ang:"Banco 75°", c:"Eleve até a altura dos olhos com ritmo constante." },
-            { n:"Elevação em Y no Banco 40°", ang:"Banco 40° • Peito apoiado", c:"Trabalha deltoide e trapézio inferior." }
-          ]},
-          { id:"d3_5", sets:3, reps:"12-15", rest:60, w:2.5, a:[
-            { n:"Abdominal Declinado no B3", ang:"Banco -22° • Pés no rolo", c:"Desça controlando o tronco e suba sem puxar o pescoço." },
-            { n:"Abdominal Bicicleta no Banco", ang:"Banco 0° (Reto)", c:"Alterne tronco e pernas de forma controlada." },
-            { n:"Declinado com Haltere no Peito", ang:"Banco -22°", c:"Adicione carga leve com controle." }
-          ]}
-        ],
-        opt: [
-          { id:"d3_o1", sets:2, reps:"10-12", rest:60, w:10, a:[
-            { n:"Rosca Scott no Encosto do B3", ang:"Banco 40° ou 60° • Braço apoiado", c:"Apoie o braço no encosto inclinado para isolar o bíceps." },
-            { n:"Rosca Martelo Alternada", ang:"Banco 75° ou em pé", c:"Pegada neutra focando em braquial e antebraço." },
-            { n:"Rosca Inclinada 60°", ang:"Banco 60° • Costas apoiadas", c:"Alongamento máximo do bíceps." }
-          ]},
-          { id:"d3_o2", sets:2, reps:"10", rest:75, w:11.5, a:[
-            { n:"Afundo Estático", ang:"Piso 15mm", c:"Estímulo extra leve para pernas fechando a semana." },
-            { n:"Agachamento Búlgaro Leve", ang:"Pé traseiro no B3", c:"Cadência controlada (3s descendo)." },
-            { n:"Passada Reversa no Piso", ang:"Piso 15mm", c:"Controle de quadril e joelho." }
-          ]}
-        ]
-      }
-    ];
-
-    let day = 0, tmr = null, sec = 0, promptEvt = null;
-    let db = JSON.parse(localStorage.getItem("hg_b3_v4") || '{"cyc":1,"alt":{},"s":{},"rests":{},"hist":[]}');
-    if (!db.rests) db.rests = {};
-    if (!db.hist) db.hist = [];
-
-    window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); promptEvt = e; });
-    function installApp() {
-      if (promptEvt) { promptEvt.prompt(); promptEvt = null; }
-      else alert("Para instalar: toque nos 3 pontinhos do Chrome > Adicionar à tela inicial > Instalar.");
-    }
-    function save() { localStorage.setItem("hg_b3_v4", JSON.stringify(db)); }
-
-    function switchNav(tab) {
-      document.getElementById("viewTreino").style.display = tab === "treino" ? "block" : "none";
-      document.getElementById("viewCiclos").style.display = tab === "ciclos" ? "block" : "none";
-      document.getElementById("viewEvolucao").style.display = tab === "evolucao" ? "block" : "none";
-      document.getElementById("navTreino").classList.toggle("active", tab === "treino");
-      document.getElementById("navCiclos").classList.toggle("active", tab === "ciclos");
-      document.getElementById("navEvolucao").classList.toggle("active", tab === "evolucao");
-      if (tab === "ciclos") renderCiclos();
-      if (tab === "evolucao") renderEvolucao();
-    }
-
-    function setDay(i) {
-      day = i;
-      document.querySelectorAll(".tab").forEach((el, idx) => el.classList.toggle("active", idx === i));
-      render();
-    }
-    function setCycle(c) { db.cyc = c; db.alt = {}; save(); render(); renderCiclos(); }
-    function nextCycle() { setCycle(db.cyc === 3 ? 1 : db.cyc + 1); }
-    function toggleAlt(id) {
-      const cur = db.alt[id] ?? (db.cyc - 1);
-      db.alt[id] = (cur + 1) % 3;
-      save(); render(); renderCiclos();
-    }
-    function setAltDirect(id, idx) {
-      db.alt[id] = idx;
-      save(); render(); renderCiclos();
-    }
-    function getRest(ex) {
-      const val = Number(db.rests[ex.id]);
-      return val > 0 ? val : ex.rest;
-    }
-    function setRest(exId, val, defaultRest) {
-      const parsed = parseInt(val, 10);
-      db.rests[exId] = (!isNaN(parsed) && parsed > 0) ? parsed : defaultRest;
-      save();
-    }
-
-    function beep() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.value = 880;
-        gain.gain.value = 0.12;
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        setTimeout(() => { osc.stop(); ctx.close(); }, 250);
-      } catch (e) {}
-    }
-
-    function upd(id, sIdx, k, v, rest) {
-      const key = id + "_" + sIdx;
-      if (!db.s[key]) db.s[key] = { w: 10, r: 10, d: false };
-      db.s[key][k] = v;
-      save();
-      if (k === "d" && v) startTimer(rest);
-      render();
-    }
-
-    function startTimer(s) {
-      clearInterval(tmr);
-      sec = Math.max(5, Number(s) || 60);
-      document.getElementById("timer").classList.add("show");
-      drawSec();
-      tmr = setInterval(() => {
-        sec--;
-        if (sec <= 0) {
-          stopTimer();
-          beep();
-          try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch (e) {}
-        } else {
-          drawSec();
-        }
-      }, 1000);
-    }
-
-    function addSec(n) {
-      sec = Math.max(0, sec + n);
-      if (sec === 0) stopTimer();
-      else drawSec();
-    }
-    function stopTimer() { clearInterval(tmr); document.getElementById("timer").classList.remove("show"); }
-    function drawSec() {
-      const m = String(Math.floor(sec/60)).padStart(2,"0");
-      const r = String(sec%60).padStart(2,"0");
-      document.getElementById("tDisp").textContent = m + ":" + r;
-    }
-
-    function clearDone() {
-      const d = TREINOS[day];
-      [...d.base, ...d.opt].forEach(ex => {
-        for (let s = 0; s < ex.sets; s++) {
-          const key = ex.id + "_" + s;
-          if (db.s[key]) db.s[key].d = false;
-        }
-      });
-      save(); render();
-    }
-
-    function finishWorkout() {
-      const d = TREINOS[day];
-      let setsDone = 0, vol = 0, items = [];
-      [...d.base, ...d.opt].forEach(ex => {
-        const idx = db.alt[ex.id] ?? (db.cyc - 1);
-        const info = ex.a[idx] || ex.a[0];
-        let maxW = 0, exDone = 0;
-        for (let s = 0; s < ex.sets; s++) {
-          const st = db.s[ex.id + "_" + s];
-          if (st && st.d) {
-            setsDone++;
-            exDone++;
-            const w = Number(st.w) || ex.w;
-            const r = Number(st.r) || 10;
-            vol += w * r;
-            if (w > maxW) maxW = w;
-          }
-        }
-        if (exDone > 0) items.push({ name: info.n, sets: exDone, maxW });
-      });
-
-      if (setsDone === 0) {
-        alert("Marque pelo menos uma série concluída (✓) antes de salvar o treino.");
-        return;
-      }
-
-      db.hist.unshift({
-        date: new Date().toLocaleDateString("pt-BR"),
-        day: d.t,
-        cycle: db.cyc,
-        sets: setsDone,
-        vol: Math.round(vol),
-        items
-      });
-
-      clearDone();
-      save();
-      switchNav("evolucao");
-    }
-
-    function backup() {
-      const b = new Blob([JSON.stringify(db, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(b);
-      a.download = "backup_homegym_b3.json";
-      a.click();
-    }
-
-    function importBackup(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        try {
-          const parsed = JSON.parse(ev.target.result);
-          if (parsed && typeof parsed === "object") {
-            db = { cyc: 1, alt: {}, s: {}, rests: {}, hist: [], ...parsed };
-            save();
-            render();
-            renderEvolucao();
-            alert("Backup restaurado com sucesso!");
-          }
-        } catch (err) {
-          alert("Arquivo JSON inválido.");
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    function renderEx(ex, i, isOpt) {
-      const idx = db.alt[ex.id] ?? (db.cyc - 1);
-      const info = ex.a[idx] || ex.a[0];
-      const restSec = getRest(ex);
-      const defRepsNum = parseInt(ex.reps, 10) || 10;
-
-      let sets = "";
-      for (let s = 0; s < ex.sets; s++) {
-        const st = db.s[ex.id + "_" + s] || { w: ex.w, r: defRepsNum, d: false };
-        const opts = PESOS.map(p => `<option value="${p}" ${Number(st.w)===p?"selected":""}>${p} kg</option>`).join("");
-        sets += `
-          <div class="set ${st.d?"done":""}">
-            <span class="meta">S${s+1}</span>
-            <select onchange="upd('${ex.id}',${s},'w',parseFloat(this.value),${restSec})">${opts}</select>
-            <input type="number" min="1" max="150" value="${st.r}" onchange="upd('${ex.id}',${s},'r',parseInt(this.value)||0,${restSec})" />
-            <button class="chk ${st.d?"done":""}" onclick="upd('${ex.id}',${s},'d',${!st.d},${restSec})">✓</button>
-          </div>`;
-      }
-
-      return `
-        <div class="box ${isOpt?"opt":""}">
-          <div class="top">
-            <span class="meta">#${i+1} • Alvo ${ex.sets}×${ex.reps}</span>
-            <button onclick="toggleAlt('${ex.id}')">⇄ Variação (${idx+1}/3)</button>
-          </div>
-          <div class="ex-title">${info.n}</div>
-          <div class="tags">
-            <span class="tag angle">📐 ${info.ang}</span>
-            <span class="tag">Sugestão: ${ex.w}kg</span>
-            <label class="rest-edit">
-              ⏱ Descanso (s):
-              <input type="number" min="10" max="600" step="5" value="${restSec}" onchange="setRest('${ex.id}',this.value,${ex.rest});render();" />
-            </label>
-          </div>
-          <div class="cue">${info.c}</div>
-          ${sets}
-        </div>`;
-    }
-
-    function render() {
-      const d = TREINOS[day];
-      const cycNames = ["Ciclo 1 • Base", "Ciclo 2 • Ângulos", "Ciclo 3 • 24kg Max"];
-      document.getElementById("dTitle").textContent = d.t;
-      document.getElementById("dSub").textContent = d.s;
-      document.getElementById("cycBtn").textContent = cycNames[db.cyc - 1];
-
-      document.getElementById("baseList").innerHTML = d.base.map((ex, i) => renderEx(ex, i, false)).join("");
-      document.getElementById("optList").innerHTML = d.opt.map((ex, i) => renderEx(ex, i, true)).join("");
-
-      let tot = 0, ok = 0;
-      d.base.forEach(ex => {
-        for (let s = 0; s < ex.sets; s++) {
-          tot++;
-          if (db.s[ex.id + "_" + s]?.d) ok++;
-        }
-      });
-      const pct = tot ? Math.round((ok/tot)*100) : 0;
-      document.getElementById("progTxt").textContent = `${ok}/${tot} séries da base (${pct}%)`;
-      document.getElementById("progBar").style.width = pct + "%";
-    }
-
-    function renderCiclos() {
-      [1,2,3].forEach(c => {
-        document.getElementById("cBtn" + c).classList.toggle("btn-gold", db.cyc === c);
-      });
-      let html = "";
-      TREINOS.forEach(d => {
-        html += `<div class="sec-title"><span>${d.t}</span></div>`;
-        [...d.base, ...d.opt].forEach(ex => {
-          const cur = db.alt[ex.id] ?? (db.cyc - 1);
-          const opts = ex.a.map((v, idx) => `
-            <button style="text-align:left;width:100%;margin-top:5px;" class="${cur===idx?'btn-gold':''}" onclick="setAltDirect('${ex.id}',${idx})">
-              <strong>C${idx+1}:</strong> ${v.n} <span class="meta">(${v.ang})</span>
-            </button>`).join("");
-          html += `<div class="box">${opts}</div>`;
-        });
-      });
-      document.getElementById("ciclosList").innerHTML = html;
-    }
-
-    function renderEvolucao() {
-      const totalTreinos = db.hist.length;
-      const totalSeries = db.hist.reduce((acc, h) => acc + (h.sets || 0), 0);
-      const totalVol = db.hist.reduce((acc, h) => acc + (h.vol || 0), 0);
-
-      document.getElementById("statsGrid").innerHTML = `
-        <div class="stat-card"><div class="meta">TREINOS CONCLUÍDOS</div><div class="stat-val">${totalTreinos}</div></div>
-        <div class="stat-card"><div class="meta">SÉRIES TOTAIS</div><div class="stat-val">${totalSeries}</div></div>
-        <div class="stat-card" style="grid-column:span 2"><div class="meta">VOLUME ACUMULADO</div><div class="stat-val">${totalVol.toLocaleString("pt-BR")} kg</div></div>
-      `;
-
-      const prs = {};
-      db.hist.forEach(h => {
-        (h.items || []).forEach(it => {
-          if (!prs[it.name] || it.maxW > prs[it.name]) prs[it.name] = it.maxW;
-        });
-      });
-
-      const prKeys = Object.keys(prs);
-      document.getElementById("prsList").innerHTML = prKeys.length
-        ? prKeys.map(k => `<div class="top" style="padding:6px 0;border-bottom:1px solid #222731;font-size:13px;"><span>${k}</span><strong style="color:var(--gold)">${prs[k]} kg</strong></div>`).join("")
-        : `<div class="meta">Conclua seu primeiro treino para registrar seus recordes.</div>`;
-
-      document.getElementById("histList").innerHTML = db.hist.length
-        ? db.hist.map(h => `
-          <div class="hist-item">
-            <div class="top">
-              <strong style="font-size:13px">${h.day}</strong>
-              <span class="meta">${h.date} • Ciclo ${h.cycle}</span>
-            </div>
-            <div class="meta" style="margin-top:4px">${h.sets} séries • Volume: ${h.vol} kg</div>
-          </div>`).join("")
-        : `<div class="meta" style="margin-top:6px">Nenhuma sessão concluída ainda.</div>`;
-    }
-
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
-    }
-    render();
-  </script>
-</body>
-</html>
+            { n:"Remada Alta Aberta Apoiada", ang:"Banco 40°
