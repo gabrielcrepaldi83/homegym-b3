@@ -139,6 +139,18 @@
     .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
     .stat-val { font-size: 20px; font-weight: 800; color: var(--gold); margin-top: 4px; }
     .hist-item { background: #111419; border: 1px solid #222731; border-radius: 10px; padding: 10px; margin-top: 8px; }
+    .sub-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 4px; margin-bottom: 14px; }
+    .sub-tab { background: transparent; border: none; color: var(--muted); padding: 9px 8px; border-radius: 9px; font-size: 12px; font-weight: 700; }
+    .sub-tab.active { background: var(--gold); color: #111; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .field label { display: block; font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+    .field input { width: 100%; text-align: left; padding: 9px 10px; }
+    .delta { font-size: 11px; font-weight: 700; margin-top: 2px; color: var(--green); }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+    .chip { font-size: 11px; padding: 5px 9px; border-radius: 999px; }
+    .chip.active { background: var(--gold); color: #111; border-color: var(--gold); }
+    .body-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+    .body-pill { font-size: 11px; background: var(--elev); border: 1px solid var(--border); padding: 3px 7px; border-radius: 6px; color: #d1d5db; }
   </style>
 </head>
 <body>
@@ -204,17 +216,70 @@
     </div>
 
     <div id="viewEvolucao" style="display:none">
-      <div class="stat-grid" id="statsGrid"></div>
-      <div class="box">
-        <strong style="font-size:15px;display:block">Recordes Pessoais (PRs)</strong>
-        <div class="meta" style="margin-bottom:8px">Maior carga registrada por exercício</div>
-        <div id="prsList"></div>
+      <div class="sub-tabs">
+        <button class="sub-tab active" id="subCargas" onclick="switchEvoTab('cargas')">🏋️ Cargas &amp; Treinos</button>
+        <button class="sub-tab" id="subCorpo" onclick="switchEvoTab('corpo')">⚖️ Composição Corporal</button>
       </div>
-      <div class="box">
-        <strong style="font-size:15px;display:block">Histórico de Sessões</strong>
-        <div id="histList"></div>
+
+      <div id="evoCargas">
+        <div class="stat-grid" id="statsGrid"></div>
+        <div class="box">
+          <strong style="font-size:15px;display:block">Recordes Pessoais (PRs)</strong>
+          <div class="meta" style="margin-bottom:8px">Maior carga registrada por exercício</div>
+          <div id="prsList"></div>
+        </div>
+        <div class="box">
+          <strong style="font-size:15px;display:block">Histórico de Sessões</strong>
+          <div id="histList"></div>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+
+      <div id="evoCorpo" style="display:none">
+        <div class="box">
+          <div class="top">
+            <div>
+              <strong style="font-size:15px;display:block">Nova Medição Corporal</strong>
+              <span class="meta">Informe sua altura 1x para cálculo automático do IMC</span>
+            </div>
+            <div style="width:92px">
+              <label style="font-size:10px;color:var(--muted);display:block">Altura (cm)</label>
+              <input type="number" id="inAltura" placeholder="178" style="width:100%;padding:5px 6px;font-size:12px" onchange="saveHeight(this.value)" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field"><label>Data</label><input type="date" id="inData" /></div>
+            <div class="field"><label>Peso (kg)</label><input type="number" step="0.1" id="inPeso" placeholder="Ex: 82.5" oninput="autoCalcBody()" /></div>
+            <div class="field"><label>Gordura Corporal (%)</label><input type="number" step="0.1" id="inFat" placeholder="Ex: 16.5" oninput="autoCalcBody()" /></div>
+            <div class="field"><label>Massa Livre de Gordura (kg)</label><input type="number" step="0.1" id="inLean" placeholder="Auto ou manual" /></div>
+            <div class="field"><label>Gordura Subcutânea (%)</label><input type="number" step="0.1" id="inSub" placeholder="Ex: 14.2" /></div>
+            <div class="field"><label>IMC</label><input type="number" step="0.1" id="inImc" placeholder="Auto ou manual" /></div>
+          </div>
+
+          <button class="btn-finish" style="margin-top:12px;padding:12px" onclick="saveBodyEntry()">+ Salvar Medição Corporal</button>
+        </div>
+
+        <div class="stat-grid" id="bodyCards"></div>
+
+        <div class="box" id="chartBox" style="display:none">
+          <strong style="font-size:15px;display:block">Curva de Evolução</strong>
+          <div class="chip-row">
+            <button class="chip active" id="m_weight" onclick="setMetric('weight')">Peso (kg)</button>
+            <button class="chip" id="m_fat" onclick="setMetric('fat')">Gordura (%)</button>
+            <button class="chip" id="m_lean" onclick="setMetric('lean')">Massa Livre (kg)</button>
+            <button class="chip" id="m_sub" onclick="setMetric('sub')">Subcutânea (%)</button>
+            <button class="chip" id="m_imc" onclick="setMetric('imc')">IMC</button>
+          </div>
+          <div id="bodyChart"></div>
+        </div>
+
+        <div class="box">
+          <strong style="font-size:15px;display:block">Histórico de Medições</strong>
+          <div id="bodyHistList"></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
         <button class="btn-gold" onclick="backup()">Exportar Backup</button>
         <button onclick="document.getElementById('impFile').click()">Importar Backup</button>
         <input type="file" id="impFile" accept=".json" style="display:none" onchange="importBackup(event)" />
@@ -400,7 +465,7 @@
       document.getElementById("navCiclos").classList.toggle("active", tab === "ciclos");
       document.getElementById("navEvolucao").classList.toggle("active", tab === "evolucao");
       if (tab === "ciclos") renderCiclos();
-      if (tab === "evolucao") renderEvolucao();
+      if (tab === "evolucao") { renderEvolucao(); renderBody(); }
     }
 
     function setDay(i) {
@@ -549,10 +614,11 @@
         try {
           const parsed = JSON.parse(ev.target.result);
           if (parsed && typeof parsed === "object") {
-            db = { cyc: 1, alt: {}, s: {}, rests: {}, hist: [], ...parsed };
+            db = { cyc: 1, alt: {}, s: {}, rests: {}, hist: [], body: [], height: 0, ...parsed };
             save();
             render();
             renderEvolucao();
+            renderBody();
             alert("Backup restaurado com sucesso!");
           }
         } catch (err) {
@@ -675,6 +741,127 @@
             <div class="meta" style="margin-top:4px">${h.sets} séries • Volume: ${h.vol} kg</div>
           </div>`).join("")
         : `<div class="meta" style="margin-top:6px">Nenhuma sessão concluída ainda.</div>`;
+    }
+
+    let currentMetric = "weight";
+    if (!db.body) db.body = [];
+    if (!db.height) db.height = 0;
+
+    function switchEvoTab(sub) {
+      document.getElementById("evoCargas").style.display = sub === "cargas" ? "block" : "none";
+      document.getElementById("evoCorpo").style.display = sub === "corpo" ? "block" : "none";
+      document.getElementById("subCargas").classList.toggle("active", sub === "cargas");
+      document.getElementById("subCorpo").classList.toggle("active", sub === "corpo");
+      if (sub === "corpo") renderBody();
+    }
+
+    function saveHeight(val) { db.height = parseFloat(val) || 0; save(); autoCalcBody(); }
+
+    function autoCalcBody() {
+      const w = parseFloat(document.getElementById("inPeso").value);
+      const fat = parseFloat(document.getElementById("inFat").value);
+      const hCm = Number(db.height) || parseFloat(document.getElementById("inAltura").value);
+      if (!isNaN(w) && w > 0 && !isNaN(fat) && fat > 0 && fat < 80) {
+        document.getElementById("inLean").value = (w * (1 - fat / 100)).toFixed(1);
+      }
+      if (!isNaN(w) && w > 0 && !isNaN(hCm) && hCm > 100) {
+        const hM = hCm / 100;
+        document.getElementById("inImc").value = (w / (hM * hM)).toFixed(1);
+      }
+    }
+
+    function saveBodyEntry() {
+      const dateRaw = document.getElementById("inData").value || new Date().toISOString().slice(0, 10);
+      const weight = parseFloat(document.getElementById("inPeso").value);
+      const fat = parseFloat(document.getElementById("inFat").value);
+      const lean = parseFloat(document.getElementById("inLean").value);
+      const sub = parseFloat(document.getElementById("inSub").value);
+      const imc = parseFloat(document.getElementById("inImc").value);
+      if (isNaN(weight) || weight <= 0) { alert("Informe pelo menos o Peso (kg)."); return; }
+      const [y, m, d] = dateRaw.split("-");
+      db.body.unshift({
+        id: Date.now(), iso: dateRaw, date: `${d}/${m}/${y}`,
+        weight: Number(weight.toFixed(1)),
+        imc: !isNaN(imc) ? Number(imc.toFixed(1)) : null,
+        fat: !isNaN(fat) ? Number(fat.toFixed(1)) : null,
+        lean: !isNaN(lean) ? Number(lean.toFixed(1)) : null,
+        sub: !isNaN(sub) ? Number(sub.toFixed(1)) : null
+      });
+      db.body.sort((a, b) => (b.iso || "").localeCompare(a.iso || ""));
+      save();
+      ["inPeso", "inFat", "inLean", "inSub", "inImc"].forEach(id => document.getElementById(id).value = "");
+      renderBody();
+    }
+
+    function deleteBodyEntry(id) { db.body = db.body.filter(x => x.id !== id); save(); renderBody(); }
+
+    function setMetric(m) {
+      currentMetric = m;
+      ["weight", "fat", "lean", "sub", "imc"].forEach(k => document.getElementById("m_" + k).classList.toggle("active", k === m));
+      renderBodyChart();
+    }
+
+    function formatDelta(cur, prev, unit) {
+      if (cur == null || prev == null) return "";
+      const diff = Number((cur - prev).toFixed(1));
+      if (diff === 0) return `<div class="delta">Sem alteração</div>`;
+      return `<div class="delta">${diff > 0 ? "+" : ""}${diff}${unit} vs anterior</div>`;
+    }
+
+    function renderBody() {
+      const dateInput = document.getElementById("inData");
+      if (!dateInput.value) dateInput.value = new Date().toISOString().slice(0, 10);
+      if (db.height) document.getElementById("inAltura").value = db.height;
+      const latest = db.body[0], prev = db.body[1];
+      document.getElementById("bodyCards").innerHTML = latest ? `
+        <div class="stat-card"><div class="meta">PESO ATUAL</div><div class="stat-val">${latest.weight} kg</div>${formatDelta(latest.weight, prev?.weight, " kg")}</div>
+        <div class="stat-card"><div class="meta">IMC</div><div class="stat-val">${latest.imc ?? "—"}</div>${formatDelta(latest.imc, prev?.imc, "")}</div>
+        <div class="stat-card"><div class="meta">GORDURA CORPORAL</div><div class="stat-val">${latest.fat != null ? latest.fat + "%" : "—"}</div>${formatDelta(latest.fat, prev?.fat, "%")}</div>
+        <div class="stat-card"><div class="meta">MASSA LIVRE GORDURA</div><div class="stat-val">${latest.lean != null ? latest.lean + " kg" : "—"}</div>${formatDelta(latest.lean, prev?.lean, " kg")}</div>
+        <div class="stat-card" style="grid-column:span 2"><div class="meta">GORDURA SUBCUTÂNEA</div><div class="stat-val">${latest.sub != null ? latest.sub + "%" : "—"}</div>${formatDelta(latest.sub, prev?.sub, "%")}</div>
+      ` : "";
+      renderBodyChart();
+      document.getElementById("bodyHistList").innerHTML = db.body.length ? db.body.map(b => `
+        <div class="hist-item">
+          <div class="top">
+            <strong style="font-size:13px">${b.date} • ${b.weight} kg</strong>
+            <button style="padding:3px 8px;font-size:11px;color:#ef4444" onclick="deleteBodyEntry(${b.id})">Excluir</button>
+          </div>
+          <div class="body-pills">
+            ${b.imc != null ? `<span class="body-pill">IMC: <strong>${b.imc}</strong></span>` : ""}
+            ${b.fat != null ? `<span class="body-pill">Gordura: <strong>${b.fat}%</strong></span>` : ""}
+            ${b.lean != null ? `<span class="body-pill">Massa Livre: <strong>${b.lean} kg</strong></span>` : ""}
+            ${b.sub != null ? `<span class="body-pill">Subcutânea: <strong>${b.sub}%</strong></span>` : ""}
+          </div>
+        </div>`).join("") : `<div class="meta" style="margin-top:6px">Nenhuma medição registrada ainda.</div>`;
+    }
+
+    function renderBodyChart() {
+      const box = document.getElementById("chartBox");
+      const series = [...db.body].reverse().filter(item => item[currentMetric] != null);
+      if (series.length < 2) {
+        box.style.display = series.length === 1 ? "block" : "none";
+        document.getElementById("bodyChart").innerHTML = `<div class="meta">Adicione pelo menos 2 medições para visualizar a linha de tendência.</div>`;
+        return;
+      }
+      box.style.display = "block";
+      const vals = series.map(s => Number(s[currentMetric]));
+      const min = Math.min(...vals), max = Math.max(...vals), span = (max - min) || 1;
+      const w = 320, h = 110, padX = 22, padY = 20;
+      const pts = series.map((s, i) => ({
+        x: padX + (i / (series.length - 1)) * (w - padX * 2),
+        y: (h - padY) - ((Number(s[currentMetric]) - min) / span) * (h - padY * 2),
+        val: s[currentMetric], date: s.date.slice(0, 5)
+      }));
+      document.getElementById("bodyChart").innerHTML = `
+        <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;background:#111419;border-radius:10px;border:1px solid #222731;">
+          <polyline fill="none" stroke="#e5a93c" stroke-width="2.5" points="${pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ")}" />
+          ${pts.map(p => `
+            <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="#e5a93c" />
+            <text x="${p.x.toFixed(1)}" y="${(p.y - 7).toFixed(1)}" fill="#f3f4f6" font-size="9" text-anchor="middle" font-weight="bold">${p.val}</text>
+            <text x="${p.x.toFixed(1)}" y="${h - 3}" fill="#9ca3af" font-size="8" text-anchor="middle">${p.date}</text>
+          `).join("")}
+        </svg>`;
     }
 
     if ("serviceWorker" in navigator) {
