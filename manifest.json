@@ -1,17 +1,25 @@
 {
-  "name": "HomeGym B3 Move",
-  "short_name": "HomeGym B3",
-  "start_url": "./index.html",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#0d0f12",
-  "theme_color": "#0d0f12",
-  "icons": [
-    {
-      "src": "./icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    }
-  ]
+"name": "Tá Pago • Treino & Evolução",
+"short_name": "Tá Pago",
+"description": "Aplicativo de treino personalizado para casa e academia com acompanhamento de cargas e evolução corporal.",
+"start_url": "./",
+"scope": "./",
+"display": "standalone",
+"background_color": "#0d0f12",
+"theme_color": "#0d0f12",
+"orientation": "portrait",
+"icons": [
+{
+"src": "icon.png",
+"sizes": "192x192",
+"type": "image/png",
+"purpose": "any"
+},
+{
+"src": "icon.png",
+"sizes": "512x512",
+"type": "image/png",
+"purpose": "any maskable"
+}
+]
 }

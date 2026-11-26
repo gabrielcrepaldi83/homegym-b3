@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#0d0f12" />
-  <title>HomeGym B3 Move — 24kg</title>
+  <title>Tá Pago • Treino & Evolução</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/png" href="icon.png" />
   <link rel="apple-touch-icon" href="icon.png" />
@@ -259,15 +259,16 @@
 <body>
   <header>
     <div class="brand">
-      <div class="brand-icon">B3</div>
+      <div class="brand-icon">TP</div>
       <div>
-        <h1>HOMEGYM B3 MOVE</h1>
-        <p id="headerSub">Par 24kg • 3 Dias</p>
+        <h1>TÁ PAGO</h1>
+        <p id="headerSub">Casa & Academia • 3 Dias</p>
       </div>
     </div>
     <div class="header-actions">
       <button class="wake-pill" id="wakeBtn" onclick="toggleWakeLock()" title="Manter tela ativa durante o treino">☀️ Tela</button>
       <button class="session-pill" id="sessTimerBtn" onclick="toggleSessionClock()" title="Toque para iniciar ou pausar o cronômetro do treino">▶ <span id="sessClock">00:00</span></button>
+      <button class="wake-pill" onclick="openManualModal()" title="Manual de Uso do App">?</button>
     </div>
   </header>
 
@@ -348,8 +349,8 @@
       <div class="box">
         <div class="top">
           <div>
-            <strong style="font-size:16px;display:block">Exercícios • Setup B3 &amp; 24kg</strong>
-            <div class="meta" id="exCatalogCount">Catálogo completo por grupo muscular</div>
+            <strong style="font-size:16px;display:block">Biblioteca de Exercícios</strong>
+            <div class="meta" id="exCatalogCount">Casa &amp; Academia por grupo e equipamento</div>
           </div>
           <button class="btn-gold" style="font-size:11px;padding:6px 10px" onclick="toggleNewExForm()">+ Novo</button>
         </div>
@@ -366,6 +367,14 @@
                 <option value="Pernas">Pernas</option>
                 <option value="Braços">Braços</option>
                 <option value="Core">Core</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Equipamento / Ambiente</label>
+              <select id="nxEquip">
+                <option value="Halteres & Banco">Halteres &amp; Banco</option>
+                <option value="Peso Corporal / Barra">Peso Corporal / Barra</option>
+                <option value="Aparelhos Academia">Aparelhos Academia</option>
               </select>
             </div>
             <div class="field"><label>Carga Sugerida (kg)</label><input type="number" step="0.5" id="nxWeight" placeholder="12" /></div>
@@ -391,6 +400,13 @@
           <button class="chip" onclick="setExGroup('Pernas', this)">Pernas</button>
           <button class="chip" onclick="setExGroup('Braços', this)">Braços</button>
           <button class="chip" onclick="setExGroup('Core', this)">Core</button>
+        </div>
+
+        <div class="chip-row" id="exEquipChips" style="margin-top:0">
+          <button class="chip active" onclick="setExEquip('Todos', this)">Todos Equip.</button>
+          <button class="chip" onclick="setExEquip('Halteres & Banco', this)">🏋️ Halteres/Banco</button>
+          <button class="chip" onclick="setExEquip('Peso Corporal / Barra', this)">🤸 Casa/Barra</button>
+          <button class="chip" onclick="setExEquip('Aparelhos Academia', this)">🏢 Academia</button>
         </div>
 
         <div class="chip-row" style="margin-top:0">
@@ -487,6 +503,9 @@
         <button onclick="document.getElementById('impFile').click()">Importar Backup</button>
         <input type="file" id="impFile" accept=".json" style="display:none" onchange="importBackup(event)" />
       </div>
+      <div style="margin-top:8px;">
+        <button style="width:100%" onclick="openManualModal()">📖 Manual de Uso do App (Guia Rápido)</button>
+      </div>
     </div>
   </div>
 
@@ -511,7 +530,64 @@
         <button class="chip" onclick="setPickerGroup('Braços', this)">Braços</button>
         <button class="chip" onclick="setPickerGroup('Core', this)">Core</button>
       </div>
+      <div class="chip-row" id="pickerEquipChips" style="margin-top:0">
+        <button class="chip active" onclick="setPickerEquip('Todos', this)">Todos Equip.</button>
+        <button class="chip" onclick="setPickerEquip('Halteres & Banco', this)">Halteres/Banco</button>
+        <button class="chip" onclick="setPickerEquip('Peso Corporal / Barra', this)">Casa/Barra</button>
+        <button class="chip" onclick="setPickerEquip('Aparelhos Academia', this)">Academia</button>
+      </div>
       <div id="pickerList"></div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="manualModal" onclick="if(event.target===this)closeManualModal()">
+    <div class="modal-card">
+      <div class="top" style="margin-bottom:8px">
+        <div>
+          <strong style="font-size:16px;display:block">📖 Manual Rápido • Tá Pago</strong>
+          <div class="meta">Tudo o que você precisa para treinar em casa ou na academia</div>
+        </div>
+        <button style="padding:5px 9px;font-size:12px" onclick="closeManualModal()">✕</button>
+      </div>
+
+      <div class="hist-item">
+        <strong style="font-size:13px;color:var(--gold)">1. Executando seu Treino (Aba Treino)</strong>
+        <div class="meta" style="margin-top:4px;line-height:1.45;color:#cbd5e1">
+          • Toque em <b>▶ 00:00</b> no topo para iniciar ou pausar o cronômetro total da sessão.<br>
+          • Ajuste o peso (0 kg para peso corporal até 200 kg para aparelhos) e as repetições de cada série.<br>
+          • Ao marcar <b>✓</b> em uma série, o cronômetro de descanso inicia automaticamente com alerta sonoro/vibração ao final.<br>
+          • Use <b>⇄</b> para copiar a carga/reps da série anterior ou <b>🎬 Execução</b> para ver a demonstração do movimento.<br>
+          • Ao terminar, toque em <b>✓ Concluir e Salvar Treino</b> — suas cargas ficam memorizadas para a próxima sessão.
+        </div>
+      </div>
+
+      <div class="hist-item">
+        <strong style="font-size:13px;color:var(--gold)">2. Personalizando Dias e Exercícios (Sem Código)</strong>
+        <div class="meta" style="margin-top:4px;line-height:1.45;color:#cbd5e1">
+          • Toque em <b>✏️ Editar Treino</b> no card do dia para liberar o modo de edição.<br>
+          • <b>+ Novo Dia / − Excluir Dia:</b> monte rotinas de 1 até 7 dias (ex.: A/B, A/B/C ou A/B/C/D) e use <b>🏷️ Renomear Dia</b> para dar o nome que quiser.<br>
+          • Em cada exercício você pode <b>🔄 Trocar exercício</b>, mudar <b>⚙️ Séries/Reps</b>, reordenar (<b>↑ ↓</b>) ou <b>✕ Remover</b>.<br>
+          • Para adicionar apenas hoje sem alterar sua ficha fixa, vá na aba <b>Exercícios</b> e toque em <b>+ Adicionar ao Dia X (Avulso)</b>.
+        </div>
+      </div>
+
+      <div class="hist-item">
+        <strong style="font-size:13px;color:var(--gold)">3. Ciclos, Biblioteca e Novos Exercícios</strong>
+        <div class="meta" style="margin-top:4px;line-height:1.45;color:#cbd5e1">
+          • Cada slot comporta até 3 variações (<b>⇄ Variação 1/3</b> ou aba <b>Ciclos</b>) para alternar estímulos.<br>
+          • Na aba <b>Exercícios</b>, filtre por grupo muscular ou equipamento (<i>Halteres/Banco</i>, <i>Casa/Barra</i>, <i>Academia</i>) ou crie o seu em <b>+ Novo</b>.
+        </div>
+      </div>
+
+      <div class="hist-item">
+        <strong style="font-size:13px;color:var(--gold)">4. Evolução, Composição Corporal e Backup</strong>
+        <div class="meta" style="margin-top:4px;line-height:1.45;color:#cbd5e1">
+          • A aba <b>Evolução</b> guarda seu histórico, volume total, recordes pessoais (PRs) e curva de peso, gordura e IMC.<br>
+          • Os dados ficam salvos no seu navegador/celular. Use <b>Exportar Backup</b> na aba Evolução para salvar um arquivo <code>.json</code> de segurança ou compartilhar sua ficha pronta com um amigo.
+        </div>
+      </div>
+
+      <button class="btn-gold" style="width:100%;margin-top:12px;padding:11px" onclick="closeManualModal()">Entendi, vamos treinar!</button>
     </div>
   </div>
 
@@ -547,11 +623,11 @@
   </nav>
 
   <script>
-    const PESOS = [2.5,3.5,4.5,5.5,6.5,8,9,10,11.5,13.5,16,18,20.5,22.5,24];
+    const PESOS = [0,2.5,3.5,4.5,5.5,6.5,8,9,10,11.5,13.5,16,18,20.5,22.5,24,25,27.5,30,32.5,35,37.5,40,45,50,55,60,65,70,75,80,90,100,110,120,130,140,150,160,180,200];
 
     /* MAPA DE VÍDEOS/ANIMAÇÕES LIGADO PELO NOME EXATO DO EXERCÍCIO
        Coloque seus arquivos curtos (.mp4, .webp ou .gif) na pasta midia/ do GitHub ou vincule pelo app. */
-                        const VIDEOS_EXERCICIOS = {
+                                    const VIDEOS_EXERCICIOS = {
       "Supino Reto com Halteres": "midia/0289-SpYC0Kp.gif",
       "Supino Reto Pegada Neutra": "midia/0303-1qrWgZ2.gif",
       "Supino Reto com Pausa (2s)": "midia/0289-SpYC0Kp.gif",
@@ -616,6 +692,38 @@
       "Prancha Abdominal": "midia/2135-VBAWRPG.gif",
       "Prancha com Toque no Ombro": "midia/3699-yRpV5TC.gif",
       "Prancha RKC (Tensão Máxima)": "midia/2135-VBAWRPG.gif",
+      "Flexão de Braços no Solo": "midia/0662-I4hDWkc.gif",
+      "Flexão Inclinada no Banco": "midia/0493-B1EVP9F.gif",
+      "Flexão Declinada (Pés no Banco)": "midia/0279-i5cEhka.gif",
+      "Mergulho nas Paralelas (Dips)": "midia/0251-9WTm7dq.gif",
+      "Barra Fixa Pronada (Pull-Up)": "midia/0652-lBDjFxJ.gif",
+      "Barra Fixa Supinada (Chin-Up)": "midia/1326-T2mxWqc.gif",
+      "Remada Australiana (Barra Baixa / TRX)": "midia/0499-bZGHsAZ.gif",
+      "Puxada Alta com Elástico (Superband)": "midia/0974-DptumMx.gif",
+      "Face Pull com Elástico": "midia/0993-sTfvVsG.gif",
+      "Kettlebell Swing": "midia/0549-UHJlbu3.gif",
+      "Agachamento Livre com Barra": "midia/0043-qXTaZnJ.gif",
+      "Levantamento Terra com Barra": "midia/0032-ila4NZS.gif",
+      "Supino Reto com Barra": "midia/0025-EIeI8Vf.gif",
+      "Mergulho no Banco (Tríceps)": "midia/0129-RrLske5.gif",
+      "Supino Máquina Articulado": "midia/0576-DOoWcnA.gif",
+      "Crucifixo Máquina (Peck Deck)": "midia/0596-v3xmPAR.gif",
+      "Cross Over na Polia Alta": "midia/0227-Pr9Rhf4.gif",
+      "Puxada Frontal na Polia (Pulley)": "midia/0198-RVwzP10.gif",
+      "Remada Baixa Sentado (Triângulo)": "midia/0861-fUBheHs.gif",
+      "Remada Articulada na Máquina": "midia/1350-7I6LNUG.gif",
+      "Desenvolvimento na Máquina": "midia/0603-67n3r98.gif",
+      "Elevação Lateral na Polia Baixa": "midia/0178-goJ6ezq.gif",
+      "Leg Press 45°": "midia/1463-2Qh2J1e.gif",
+      "Cadeira Extensora": "midia/0585-my33uHU.gif",
+      "Mesa Flexora (Deitado)": "midia/0586-17lJ1kr.gif",
+      "Cadeira Flexora (Sentado)": "midia/0599-Zg3XY7P.gif",
+      "Cadeira Abdutora": "midia/0597-CHpahtl.gif",
+      "Panturrilha no Leg Press / Máquina": "midia/1391-ykHcWme.gif",
+      "Tríceps Pulley (Barra Reta / Corda)": "midia/0201-3ZflifB.gif",
+      "Tríceps Corda na Polia Alta": "midia/0200-dU605di.gif",
+      "Rosca Direta na Polia Baixa": "midia/0868-G08RZcQ.gif",
+      "Abdominal Crunch na Polia Alta": "midia/0175-WW95auq.gif",
       "Remada Unilateral Alta Repetição": "midia/0292-C0MA9bC.gif",
       "Crucifixo Inclinado": "midia/0319-ESOd5Pl.gif",
       "Afundo Estático": "midia/0336-RRWFUcw.gif",
@@ -699,7 +807,43 @@
       { n:"Abdominal Bicicleta no Banco", g:"Core", w:2.5, reps:"16-20", rest:45, ang:"Banco 0° (Reto)", c:"Alterne rotação de tronco e pernas de forma lenta." },
       { n:"Prancha Abdominal", g:"Core", w:2.5, reps:"40s", rest:60, ang:"Piso 15mm", c:"Contraia abdômen e glúteos mantendo coluna alinhada." },
       { n:"Prancha com Toque no Ombro", g:"Core", w:2.5, reps:"30-40s", rest:60, ang:"Piso 15mm", c:"Evite girar o quadril ao alternar o apoio das mãos." },
-      { n:"Prancha RKC (Tensão Máxima)", g:"Core", w:2.5, reps:"25-35s", rest:60, ang:"Piso 15mm", c:"Contração isométrica máxima de glúteos, quadríceps e abdômen." }
+      { n:"Prancha RKC (Tensão Máxima)", g:"Core", w:2.5, reps:"25-35s", rest:60, ang:"Piso 15mm", c:"Contração isométrica máxima de glúteos, quadríceps e abdômen." },
+
+      // CASA — PESO CORPORAL, BARRA FIXA, KETTLEBELL, ELÁSTICO & BARRA
+      { n:"Flexão de Braços no Solo", g:"Peito", eq:"Peso Corporal / Barra", w:0, reps:"10-20", rest:60, ang:"Solo / Colchonete", c:"Mãos pouco além da largura dos ombros, abdômen contraído e descida controlada." },
+      { n:"Flexão Inclinada no Banco", g:"Peito", eq:"Peso Corporal / Barra", w:0, reps:"12-20", rest:60, ang:"Mãos apoiadas no Banco (0°)", c:"Excelente variação mais leve para aquecimento ou volume final de peitoral." },
+      { n:"Flexão Declinada (Pés no Banco)", g:"Peito", eq:"Peso Corporal / Barra", w:0, reps:"10-15", rest:60, ang:"Pés apoiados no Banco", c:"Aumenta a ênfase na porção clavicular (superior) do peitoral." },
+      { n:"Mergulho nas Paralelas (Dips)", g:"Peito", eq:"Peso Corporal / Barra", w:0, reps:"8-15", rest:90, ang:"Paralelas / Estação", c:"Incline levemente o tronco à frente para enfatizar peitoral inferior e tríceps." },
+      { n:"Barra Fixa Pronada (Pull-Up)", g:"Costas", eq:"Peso Corporal / Barra", w:0, reps:"6-12", rest:90, ang:"Barra Fixa • Pegada Aberta", c:"Puxe o peito em direção à barra iniciando pela depressão das escápulas." },
+      { n:"Barra Fixa Supinada (Chin-Up)", g:"Costas", eq:"Peso Corporal / Barra", w:0, reps:"6-12", rest:90, ang:"Barra Fixa • Palmas para você", c:"Forte recrutamento de dorsais e bíceps com amplitude completa." },
+      { n:"Remada Australiana (Barra Baixa / TRX)", g:"Costas", eq:"Peso Corporal / Barra", w:0, reps:"10-15", rest:60, ang:"Barra Baixa ou Fita Suspensa", c:"Corpo alinhado como prancha, puxe o peito até a barra fechando as escápulas." },
+      { n:"Puxada Alta com Elástico (Superband)", g:"Costas", eq:"Peso Corporal / Barra", w:0, reps:"12-20", rest:60, ang:"Elástico preso no alto", c:"Puxe os cotovelos para baixo e para trás mantendo tensão constante do elástico." },
+      { n:"Face Pull com Elástico", g:"Ombros", eq:"Peso Corporal / Barra", w:0, reps:"15-20", rest:45, ang:"Elástico na altura do rosto", c:"Puxe em direção à testa abrindo os cotovelos e rotacionando os punhos para trás." },
+      { n:"Kettlebell Swing", g:"Pernas", eq:"Peso Corporal / Barra", w:16, reps:"15-25", rest:60, ang:"Piso • Base afastada", c:"Empurre o quadril explosivamente para frente mantendo coluna neutra e braços relaxados." },
+      { n:"Agachamento Livre com Barra", g:"Pernas", eq:"Peso Corporal / Barra", w:40, reps:"8-12", rest:120, ang:"Rack / Barra nas costas", c:"Pés na largura dos ombros, joelhos alinhados e tronco firme durante toda a descida." },
+      { n:"Levantamento Terra com Barra", g:"Costas", eq:"Peso Corporal / Barra", w:50, reps:"6-10", rest:120, ang:"Piso • Barra Olímpica", c:"Barra rente às canelas, peito aberto e empurre o chão mantendo a lombar neutra." },
+      { n:"Supino Reto com Barra", g:"Peito", eq:"Peso Corporal / Barra", w:40, reps:"8-12", rest:90, ang:"Banco Reto • Barra", c:"Escápulas retraídas no banco, desça a barra até tocar levemente o esterno e empurre." },
+      { n:"Mergulho no Banco (Tríceps)", g:"Braços", eq:"Peso Corporal / Barra", w:0, reps:"12-15", rest:60, ang:"Mãos apoiadas na borda do Banco", c:"Desça com o quadril próximo ao banco até ~90° nos cotovelos e estenda." },
+
+      // ACADEMIA — APARELHOS GUIADOS & POLIAS
+      { n:"Supino Máquina Articulado", g:"Peito", eq:"Aparelhos Academia", w:30, reps:"8-12", rest:90, ang:"Assento ajustado na linha do peito", c:"Empurre até quase estender os cotovelos mantendo os ombros encostados no apoio." },
+      { n:"Crucifixo Máquina (Peck Deck)", g:"Peito", eq:"Aparelhos Academia", w:25, reps:"10-15", rest:60, ang:"Pegas na altura dos ombros", c:"Feche os braços com cotovelos semiflexionados e controle o retorno." },
+      { n:"Cross Over na Polia Alta", g:"Peito", eq:"Aparelhos Academia", w:16, reps:"12-15", rest:60, ang:"Polias altas • Tronco levemente inclinado", c:"Una as mãos à frente do quadril contraindo bem o peitoral." },
+      { n:"Puxada Frontal na Polia (Pulley)", g:"Costas", eq:"Aparelhos Academia", w:35, reps:"8-12", rest:90, ang:"Coxas travadas no rolo • Pegada aberta", c:"Puxe a barra até a parte superior do peito sem inclinar excessivamente o tronco." },
+      { n:"Remada Baixa Sentado (Triângulo)", g:"Costas", eq:"Aparelhos Academia", w:35, reps:"10-12", rest:75, ang:"Polia baixa • Pés na plataforma", c:"Puxe o triângulo até o abdômen mantendo a coluna ereta e fechando as escápulas." },
+      { n:"Remada Articulada na Máquina", g:"Costas", eq:"Aparelhos Academia", w:30, reps:"10-12", rest:75, ang:"Peito apoiado na almofada", c:"Puxe com foco nos cotovelos para trás sem tirar o peito do apoio." },
+      { n:"Desenvolvimento na Máquina", g:"Ombros", eq:"Aparelhos Academia", w:20, reps:"8-12", rest:90, ang:"Assento na linha dos ombros", c:"Empurre verticalmente mantendo lombar e cabeça apoiadas." },
+      { n:"Elevação Lateral na Polia Baixa", g:"Ombros", eq:"Aparelhos Academia", w:6.5, reps:"12-15", rest:60, ang:"Polia baixa • Cabo por trás ou frente", c:"Tensão contínua desde o início do movimento até a linha do ombro." },
+      { n:"Leg Press 45°", g:"Pernas", eq:"Aparelhos Academia", w:80, reps:"10-15", rest:120, ang:"Plataforma 45° • Pés na largura do quadril", c:"Desça até ~90° sem tirar o quadril do encosto e não trave os joelhos no topo." },
+      { n:"Cadeira Extensora", g:"Pernas", eq:"Aparelhos Academia", w:30, reps:"12-15", rest:60, ang:"Eixo alinhado com o joelho", c:"Estenda totalmente os joelhos segurando 1s no topo e desça controlado." },
+      { n:"Mesa Flexora (Deitado)", g:"Pernas", eq:"Aparelhos Academia", w:25, reps:"10-15", rest:60, ang:"Rolo acima do calcanhar", c:"Flexione os joelhos mantendo o quadril pressionado contra o banco." },
+      { n:"Cadeira Flexora (Sentado)", g:"Pernas", eq:"Aparelhos Academia", w:30, reps:"10-15", rest:60, ang:"Apoio firme sobre as coxas", c:"Puxe o rolo até a amplitude máxima sem tirar as costas do encosto." },
+      { n:"Cadeira Abdutora", g:"Pernas", eq:"Aparelhos Academia", w:35, reps:"12-15", rest:60, ang:"Costas apoiadas • Tronco neutro", c:"Afaste as pernas controlando tanto a abertura quanto o retorno." },
+      { n:"Panturrilha no Leg Press / Máquina", g:"Pernas", eq:"Aparelhos Academia", w:50, reps:"12-20", rest:45, ang:"Ponta dos pés na borda da plataforma", c:"Amplitude máxima alongando bem o calcanhar embaixo." },
+      { n:"Tríceps Pulley (Barra Reta / Corda)", g:"Braços", eq:"Aparelhos Academia", w:18, reps:"10-15", rest:60, ang:"Polia alta • Cotovelos colados ao tronco", c:"Estenda totalmente os cotovelos sem balançar os ombros." },
+      { n:"Tríceps Corda na Polia Alta", g:"Braços", eq:"Aparelhos Academia", w:16, reps:"12-15", rest:60, ang:"Polia alta • Corda", c:"Abra as pontas da corda no final da extensão para contrair a cabeça lateral." },
+      { n:"Rosca Direta na Polia Baixa", g:"Braços", eq:"Aparelhos Academia", w:16, reps:"10-12", rest:60, ang:"Polia baixa • Barra reta ou W", c:"Mantenha cotovelos fixos ao lado do corpo com tensão constante." },
+      { n:"Abdominal Crunch na Polia Alta", g:"Core", eq:"Aparelhos Academia", w:20, reps:"12-15", rest:60, ang:"Polia alta • Corda junto à cabeça", c:"Enrole a coluna levando os cotovelos em direção às coxas sem puxar com os braços." }
     ];
 
     const TREINOS = [
@@ -832,8 +976,8 @@
     ];
 
     let day = 0, tmr = null, sec = 0, wakeLock = null, openMedia = {}, openCatMedia = {};
-    let exGroupFilter = "Todos", vidFilter = "all", editRoutineMode = false;
-    let pickerState = { mode: "base", section: "base", index: -1, group: "Todos" };
+    let exGroupFilter = "Todos", exEquipFilter = "Todos", vidFilter = "all", editRoutineMode = false;
+    let pickerState = { mode: "base", section: "base", index: -1, group: "Todos", equip: "Todos" };
     let db = JSON.parse(localStorage.getItem("hg_b3_v4") || '{"cyc":1,"alt":{},"s":{},"lastPerf":{},"extraSets":{},"rests":{},"videos":{},"customEx":[],"customTreinos":null,"dayExtras":{"0":[],"1":[],"2":[]},"hist":[],"body":[],"height":0,"notes":{},"goals":{},"lastBackup":0,"sessStart":0,"sessElapsed":0,"sessRunning":false}');
     if (!db.rests) db.rests = {};
     if (!db.hist) db.hist = [];
@@ -964,7 +1108,7 @@
       }
       const hSub = document.getElementById("headerSub");
       if (hSub) {
-        hSub.textContent = `Par 24kg • ${tr.length} ${tr.length === 1 ? "Dia" : "Dias"}`;
+        hSub.textContent = `Casa & Academia • ${tr.length} ${tr.length === 1 ? "Dia" : "Dias"}`;
       }
     }
     function resetRoutineToDefault() {
@@ -1014,7 +1158,8 @@
       render();
     }
     function openExPicker(mode, section = "base", index = -1) {
-      pickerState = { mode, section, index, group: "Todos" };
+      pickerState = { mode, section, index, group: "Todos", equip: "Todos" };
+      document.querySelectorAll("#pickerEquipChips .chip").forEach((c, i) => c.classList.toggle("active", i === 0));
       const titleEl = document.getElementById("pickerTitle");
       if (mode === "replace") {
         titleEl.textContent = "Substituir Exercício por...";
@@ -1037,10 +1182,17 @@
       if (btnEl) btnEl.classList.add("active");
       renderExPickerList();
     }
+    function setPickerEquip(eq, btnEl) {
+      pickerState.equip = eq;
+      document.querySelectorAll("#pickerEquipChips .chip").forEach(c => c.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
+      renderExPickerList();
+    }
     function renderExPickerList() {
       const q = (document.getElementById("pickerSearch")?.value || "").trim().toLowerCase();
       const all = getAllCatalogExercises().filter(item => {
         if (pickerState.group !== "Todos" && item.g !== pickerState.group) return false;
+        if (pickerState.equip !== "Todos" && (item.eq || "Halteres & Banco") !== pickerState.equip) return false;
         if (q && !item.n.toLowerCase().includes(q) && !item.ang.toLowerCase().includes(q) && !item.g.toLowerCase().includes(q)) return false;
         return true;
       });
@@ -1143,11 +1295,18 @@
       return buildMediaPlayerHTML(exName, src, `editExerciseVideo('${esc}','${exId}',false)`);
     }
 
+    function openManualModal() {
+      document.getElementById("manualModal").classList.add("open");
+    }
+    function closeManualModal() {
+      document.getElementById("manualModal").classList.remove("open");
+    }
+
     /* CATÁLOGO COMPLETO DE EXERCÍCIOS */
     function getAllCatalogExercises() {
       const baseMap = new Map();
-      CATALOGO_EXERCICIOS.forEach(item => baseMap.set(item.n, { ...item, custom: false }));
-      (db.customEx || []).forEach(item => baseMap.set(item.n, { ...item, custom: true }));
+      CATALOGO_EXERCICIOS.forEach(item => baseMap.set(item.n, { eq: "Halteres & Banco", ...item, custom: false }));
+      (db.customEx || []).forEach(item => baseMap.set(item.n, { eq: "Halteres & Banco", ...item, custom: true }));
       return Array.from(baseMap.values());
     }
     function toggleNewExForm(force) {
@@ -1158,14 +1317,16 @@
     function saveCustomExercise() {
       const n = (document.getElementById("nxName").value || "").trim();
       const g = document.getElementById("nxGroup").value || "Peito";
-      const w = parseFloat(document.getElementById("nxWeight").value) || 10;
+      const eq = document.getElementById("nxEquip")?.value || "Halteres & Banco";
+      const w = parseFloat(document.getElementById("nxWeight").value);
+      const safeW = !isNaN(w) ? w : 10;
       const ang = (document.getElementById("nxAng").value || "Banco 0° (Reto)").trim();
       const c = (document.getElementById("nxCue").value || "Execução controlada mantendo postura firme.").trim();
       const vid = (document.getElementById("nxVid").value || "").trim();
       if (!n) { alert("Informe o nome do exercício."); return; }
 
       db.customEx = (db.customEx || []).filter(x => x.n.toLowerCase() !== n.toLowerCase());
-      db.customEx.unshift({ n, g, w, reps: "10-12", rest: 75, ang, c });
+      db.customEx.unshift({ n, g, eq, w: safeW, reps: "10-12", rest: 75, ang, c });
       if (vid) db.videos[n] = vid;
       save();
 
@@ -1182,6 +1343,12 @@
     function setExGroup(grp, btnEl) {
       exGroupFilter = grp;
       document.querySelectorAll("#exGroupChips .chip").forEach(c => c.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
+      renderExercicios();
+    }
+    function setExEquip(eq, btnEl) {
+      exEquipFilter = eq;
+      document.querySelectorAll("#exEquipChips .chip").forEach(c => c.classList.remove("active"));
       if (btnEl) btnEl.classList.add("active");
       renderExercicios();
     }
@@ -1227,10 +1394,11 @@
       const all = getAllCatalogExercises();
       const filtered = all.filter(item => {
         if (exGroupFilter !== "Todos" && item.g !== exGroupFilter) return false;
+        if (exEquipFilter !== "Todos" && (item.eq || "Halteres & Banco") !== exEquipFilter) return false;
         const hasVid = Boolean(getExerciseVideo(item.n));
         if (vidFilter === "with" && !hasVid) return false;
         if (vidFilter === "without" && hasVid) return false;
-        if (q && !item.n.toLowerCase().includes(q) && !item.ang.toLowerCase().includes(q) && !item.g.toLowerCase().includes(q)) return false;
+        if (q && !item.n.toLowerCase().includes(q) && !item.ang.toLowerCase().includes(q) && !item.g.toLowerCase().includes(q) && !(item.eq || "").toLowerCase().includes(q)) return false;
         return true;
       });
 
@@ -1257,7 +1425,7 @@
             <div class="top">
               <div class="tags" style="margin-top:0">
                 <span class="tag muscle">${item.g}</span>
-                <span class="tag">Base: ${item.w}kg</span>
+                <span class="tag">${item.eq || "Halteres & Banco"}</span>
                 ${item.custom ? `<span class="tag angle">Personalizado</span>` : ""}
               </div>
               <div class="ex-actions">
@@ -1635,7 +1803,7 @@
       const b = new Blob([JSON.stringify(db, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(b);
-      a.download = "backup_homegym_b3.json";
+      a.download = "backup_ta_pago.json";
       a.click();
     }
 
@@ -1675,10 +1843,15 @@
       const found = getAllCatalogExercises().find(x => x.n.toLowerCase() === (exName || "").toLowerCase());
       return found ? found.g : "";
     }
+    function getExerciseEquip(exName) {
+      const found = getAllCatalogExercises().find(x => x.n.toLowerCase() === (exName || "").toLowerCase());
+      return found ? (found.eq || "Halteres & Banco") : "Halteres & Banco";
+    }
     function renderEx(ex, i, isOpt, isExtra = false, secKey = 'base') {
       const idx = db.alt[ex.id] ?? (db.cyc - 1);
       const info = ex.a[idx] || ex.a[0];
       const exGroup = getExerciseGroup(info.n);
+      const exEquip = getExerciseEquip(info.n);
       const restSec = getRest(ex);
       const defRepsNum = parseInt(ex.reps, 10) || 10;
       const totalSets = getTotalSets(ex);
@@ -1689,7 +1862,7 @@
       let hitMax24 = false;
       for (let s = 0; s < totalSets; s++) {
         const st = db.s[ex.id + "_" + s] || getDefaultSetState(ex, s, defRepsNum);
-        if (Number(st.w) >= 24) hitMax24 = true;
+        if (Number(st.w) === 24 && (!exEquip || exEquip === "Halteres & Banco")) hitMax24 = true;
         const opts = PESOS.map(p => `<option value="${p}" ${Number(st.w)===p?"selected":""}>${p} kg</option>`).join("");
         const quickBtn = s > 0
           ? `<button class="btn-mini" title="Copiar série anterior" onclick="copyPrevSet('${ex.id}',${s},${ex.w},${defRepsNum})">⇄</button>`
