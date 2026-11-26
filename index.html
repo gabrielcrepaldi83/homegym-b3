@@ -70,8 +70,10 @@
       border-color: rgba(229,169,60,.5); background: var(--gold-bg); color: var(--gold);
     }
     .wrap { max-width: 680px; margin: 0 auto; padding: 14px 16px; }
-    .tabs { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
     .tab {
+      flex: 1 0 96px;
       background: var(--card); border: 1px solid var(--border); color: var(--muted);
       border-radius: 12px; padding: 10px 6px; text-align: center; cursor: pointer;
     }
@@ -230,6 +232,28 @@
     .search-input {
       width: 100%; padding: 10px 12px; background: #111419; border-radius: 10px; font-size: 13px;
     }
+    .edit-toolbar {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+      padding-top: 10px; border-top: 1px dashed var(--border);
+    }
+    .edit-toolbar button {
+      font-size: 11px; padding: 6px 9px;
+    }
+    .modal-bg {
+      position: fixed; inset: 0; background: rgba(0,0,0,.78); z-index: 50;
+      display: none; align-items: flex-end; justify-content: center; padding: 12px;
+    }
+    .modal-bg.open { display: flex; }
+    .modal-card {
+      width: 100%; max-width: 660px; max-height: 85vh; overflow-y: auto;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 14px;
+    }
+    .pick-row {
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+      background: #111419; border: 1px solid #222731; border-radius: 10px;
+      padding: 9px 10px; margin-top: 6px;
+    }
   </style>
 </head>
 <body>
@@ -238,24 +262,19 @@
       <div class="brand-icon">B3</div>
       <div>
         <h1>HOMEGYM B3 MOVE</h1>
-        <p>Par 24kg • Full Body 3x</p>
+        <p id="headerSub">Par 24kg • 3 Dias</p>
       </div>
     </div>
     <div class="header-actions">
       <button class="wake-pill" id="wakeBtn" onclick="toggleWakeLock()" title="Manter tela ativa durante o treino">☀️ Tela</button>
       <button class="session-pill" id="sessTimerBtn" onclick="toggleSessionClock()" title="Toque para iniciar ou pausar o cronômetro do treino">▶ <span id="sessClock">00:00</span></button>
-      <button class="btn-gold" style="padding:6px 9px;font-size:12px" onclick="installApp()">Instalar</button>
     </div>
   </header>
 
   <div class="wrap">
     <!-- ABA 1: TREINO -->
     <div id="viewTreino">
-      <div class="tabs">
-        <div class="tab active" onclick="setDay(0)"><strong>Dia 1</strong><span>Ênfase Peito</span></div>
-        <div class="tab" onclick="setDay(1)"><strong>Dia 2</strong><span>Ênfase Pernas</span></div>
-        <div class="tab" onclick="setDay(2)"><strong>Dia 3</strong><span>Costas/Ombros</span></div>
-      </div>
+      <div class="tabs" id="dayTabs"></div>
 
       <div class="box">
         <div class="top">
@@ -263,14 +282,25 @@
             <strong id="dTitle" style="font-size:16px;display:block"></strong>
             <div class="meta" id="dSub"></div>
           </div>
-          <button class="badge" id="cycBtn" onclick="nextCycle()">Ciclo 1 • Base</button>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+            <button id="editRoutineBtn" style="font-size:11px;padding:5px 9px" onclick="toggleEditRoutine()">✏️ Editar Treino</button>
+            <button class="badge" id="cycBtn" onclick="nextCycle()">Ciclo 1 • Base</button>
+          </div>
+        </div>
+        <div id="editRoutineBar" class="edit-toolbar" style="display:none">
+          <button class="btn-gold" onclick="editDayMeta()">🏷️ Renomear Dia</button>
+          <button class="btn-green" onclick="addRoutineDay()">+ Novo Dia</button>
+          <button class="btn-danger" onclick="removeCurrentRoutineDay()">− Excluir Dia</button>
+          <button class="btn-green" onclick="openExPicker('base')">+ Add na Base</button>
+          <button class="btn-green" onclick="openExPicker('opt')">+ Add nos Opcionais</button>
+          <button class="btn-danger" onclick="resetRoutineToDefault()">↺ Restaurar Padrão</button>
         </div>
         <div class="meta" style="margin-top:10px" id="progTxt">0/0 séries da base (0%)</div>
         <div class="bar"><div class="fill" id="progBar"></div></div>
       </div>
 
       <div class="sec-title">
-        <span>Base Prioritária (5)</span>
+        <span id="baseSecTitle">Base Prioritária</span>
         <span>✓ inicia descanso</span>
       </div>
       <div id="baseList"></div>
@@ -457,6 +487,31 @@
         <button onclick="document.getElementById('impFile').click()">Importar Backup</button>
         <input type="file" id="impFile" accept=".json" style="display:none" onchange="importBackup(event)" />
       </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="exPickerModal" onclick="if(event.target===this)closeExPicker()">
+    <div class="modal-card">
+      <div class="top">
+        <div>
+          <strong id="pickerTitle" style="font-size:15px;display:block">Escolher Exercício</strong>
+          <div class="meta" id="pickerSub">Selecione um exercício da biblioteca (com GIF e ajuste de banco)</div>
+        </div>
+        <button style="padding:5px 9px;font-size:12px" onclick="closeExPicker()">✕</button>
+      </div>
+      <div style="margin-top:10px">
+        <input type="text" class="search-input" id="pickerSearch" placeholder="🔍 Filtrar por nome, grupo ou banco..." oninput="renderExPickerList()" />
+      </div>
+      <div class="chip-row" id="pickerGroupChips">
+        <button class="chip active" onclick="setPickerGroup('Todos', this)">Todos</button>
+        <button class="chip" onclick="setPickerGroup('Peito', this)">Peito</button>
+        <button class="chip" onclick="setPickerGroup('Costas', this)">Costas</button>
+        <button class="chip" onclick="setPickerGroup('Ombros', this)">Ombros</button>
+        <button class="chip" onclick="setPickerGroup('Pernas', this)">Pernas</button>
+        <button class="chip" onclick="setPickerGroup('Braços', this)">Braços</button>
+        <button class="chip" onclick="setPickerGroup('Core', this)">Core</button>
+      </div>
+      <div id="pickerList"></div>
     </div>
   </div>
 
@@ -776,9 +831,10 @@
       }
     ];
 
-    let day = 0, tmr = null, sec = 0, promptEvt = null, wakeLock = null, openMedia = {}, openCatMedia = {};
-    let exGroupFilter = "Todos", vidFilter = "all";
-    let db = JSON.parse(localStorage.getItem("hg_b3_v4") || '{"cyc":1,"alt":{},"s":{},"lastPerf":{},"extraSets":{},"rests":{},"videos":{},"customEx":[],"dayExtras":{"0":[],"1":[],"2":[]},"hist":[],"body":[],"height":0,"notes":{},"goals":{},"lastBackup":0,"sessStart":0,"sessElapsed":0,"sessRunning":false}');
+    let day = 0, tmr = null, sec = 0, wakeLock = null, openMedia = {}, openCatMedia = {};
+    let exGroupFilter = "Todos", vidFilter = "all", editRoutineMode = false;
+    let pickerState = { mode: "base", section: "base", index: -1, group: "Todos" };
+    let db = JSON.parse(localStorage.getItem("hg_b3_v4") || '{"cyc":1,"alt":{},"s":{},"lastPerf":{},"extraSets":{},"rests":{},"videos":{},"customEx":[],"customTreinos":null,"dayExtras":{"0":[],"1":[],"2":[]},"hist":[],"body":[],"height":0,"notes":{},"goals":{},"lastBackup":0,"sessStart":0,"sessElapsed":0,"sessRunning":false}');
     if (!db.rests) db.rests = {};
     if (!db.hist) db.hist = [];
     if (!db.body) db.body = [];
@@ -792,12 +848,247 @@
     if (typeof db.sessElapsed !== "number") db.sessElapsed = 0;
     if (typeof db.sessRunning !== "boolean") db.sessRunning = false;
 
-    window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); promptEvt = e; });
-    function installApp() {
-      if (promptEvt) { promptEvt.prompt(); promptEvt = null; }
-      else alert("Para instalar: toque nos 3 pontinhos do Chrome > Adicionar à tela inicial > Instalar.");
-    }
     function save() { localStorage.setItem("hg_b3_v4", JSON.stringify(db)); }
+
+    function getTreinos() {
+      if (Array.isArray(db.customTreinos) && db.customTreinos.length >= 1) {
+        return db.customTreinos;
+      }
+      return TREINOS;
+    }
+    function ensureEditableTreinos() {
+      if (!Array.isArray(db.customTreinos) || db.customTreinos.length < 1) {
+        db.customTreinos = JSON.parse(JSON.stringify(TREINOS));
+      }
+    }
+    function addRoutineDay() {
+      ensureEditableTreinos();
+      if (db.customTreinos.length >= 7) {
+        alert("Limite máximo de 7 dias de treino atingido.");
+        return;
+      }
+      const nextNum = db.customTreinos.length + 1;
+      const newTitle = prompt("Nome do novo dia de treino:", `Dia ${nextNum}: Treino ${String.fromCharCode(64 + nextNum)}`);
+      if (newTitle === null) return;
+      const newSub = prompt("Foco / Grupos musculares deste dia:", "Personalizado");
+      if (newSub === null) return;
+
+      const uid = Date.now();
+      const firstEx = getAllCatalogExercises()[0] || { n: "Supino Reto com Halteres", w: 16, reps: "8-12", rest: 90, ang: "Banco 0° (Reto) • Assento 0°", c: "Execução controlada." };
+      db.customTreinos.push({
+        t: newTitle.trim() || `Dia ${nextNum}: Treino ${String.fromCharCode(64 + nextNum)}`,
+        s: newSub.trim() || "Personalizado",
+        base: [
+          {
+            id: `d${nextNum}_${uid}_1`,
+            sets: 3,
+            reps: firstEx.reps || "8-12",
+            rest: firstEx.rest || 75,
+            w: firstEx.w || 12,
+            a: [
+              { n: firstEx.n, ang: firstEx.ang, c: firstEx.c },
+              { n: firstEx.n, ang: firstEx.ang, c: firstEx.c },
+              { n: firstEx.n, ang: firstEx.ang, c: firstEx.c }
+            ]
+          }
+        ],
+        opt: []
+      });
+      day = db.customTreinos.length - 1;
+      save();
+      renderDayTabs();
+      render();
+      renderCiclos();
+    }
+    function removeCurrentRoutineDay() {
+      ensureEditableTreinos();
+      if (db.customTreinos.length <= 1) {
+        alert("É necessário manter pelo menos 1 dia de treino.");
+        return;
+      }
+      const curDay = db.customTreinos[day];
+      if (!confirm(`Excluir "${curDay.t}" da rotina?`)) return;
+
+      // Reorganizar notes e dayExtras para os índices seguintes
+      const totalBefore = db.customTreinos.length;
+      for (let i = day; i < totalBefore - 1; i++) {
+        db.notes[i] = db.notes[i + 1] || "";
+        db.dayExtras[String(i)] = db.dayExtras[String(i + 1)] || [];
+      }
+      delete db.notes[totalBefore - 1];
+      delete db.dayExtras[String(totalBefore - 1)];
+
+      db.customTreinos.splice(day, 1);
+      if (day >= db.customTreinos.length) {
+        day = db.customTreinos.length - 1;
+      }
+      save();
+      renderDayTabs();
+      render();
+      renderCiclos();
+    }
+    function toggleEditRoutine(force) {
+      editRoutineMode = typeof force === "boolean" ? force : !editRoutineMode;
+      const btn = document.getElementById("editRoutineBtn");
+      const bar = document.getElementById("editRoutineBar");
+      if (btn) {
+        btn.classList.toggle("btn-gold", editRoutineMode);
+        btn.textContent = editRoutineMode ? "✓ Concluir Edição" : "✏️ Editar Treino";
+      }
+      if (bar) bar.style.display = editRoutineMode ? "flex" : "none";
+      render();
+    }
+    function editDayMeta() {
+      ensureEditableTreinos();
+      const d = db.customTreinos[day];
+      const newT = prompt("Título do treino deste dia:", d.t);
+      if (newT === null) return;
+      const newS = prompt("Subtítulo / Grupos musculares:", d.s);
+      if (newS === null) return;
+      if (newT.trim()) d.t = newT.trim();
+      if (newS.trim()) d.s = newS.trim();
+      save();
+      render();
+      renderDayTabs();
+    }
+    function renderDayTabs() {
+      const tr = getTreinos();
+      if (day >= tr.length) day = Math.max(0, tr.length - 1);
+      const container = document.getElementById("dayTabs");
+      if (container) {
+        container.innerHTML = tr.map((item, idx) => {
+          const cleanSub = (item.t.split(":")[1] || item.s || "").replace(/[()]/g, "").trim();
+          const shortSub = cleanSub ? cleanSub.slice(0, 18) : `Treino ${idx + 1}`;
+          return `<div class="tab ${idx === day ? "active" : ""}" onclick="setDay(${idx})"><strong>Dia ${idx + 1}</strong><span>${shortSub}</span></div>`;
+        }).join("");
+      }
+      const hSub = document.getElementById("headerSub");
+      if (hSub) {
+        hSub.textContent = `Par 24kg • ${tr.length} ${tr.length === 1 ? "Dia" : "Dias"}`;
+      }
+    }
+    function resetRoutineToDefault() {
+      if (!confirm("Restaurar os 3 dias de treino para a estrutura original padrão?")) return;
+      db.customTreinos = null;
+      save();
+      render();
+      renderDayTabs();
+      renderCiclos();
+    }
+    function moveRoutineExercise(section, idx, dir) {
+      ensureEditableTreinos();
+      const list = db.customTreinos[day][section];
+      const target = idx + dir;
+      if (!list || target < 0 || target >= list.length) return;
+      const tmp = list[idx];
+      list[idx] = list[target];
+      list[target] = tmp;
+      save();
+      render();
+    }
+    function removeRoutineExercise(section, idx) {
+      ensureEditableTreinos();
+      const list = db.customTreinos[day][section];
+      if (!list || !list[idx]) return;
+      const name = (list[idx].a[0]?.n) || "exercício";
+      if (!confirm(`Remover "${name}" deste dia?`)) return;
+      list.splice(idx, 1);
+      save();
+      render();
+    }
+    function editRoutinePrescription(section, idx) {
+      ensureEditableTreinos();
+      const ex = db.customTreinos[day][section][idx];
+      if (!ex) return;
+      const newSets = prompt("Número de séries padrão:", ex.sets);
+      if (newSets === null) return;
+      const newReps = prompt("Faixa de repetições (ex: 8-12, 12-15, 40s):", ex.reps);
+      if (newReps === null) return;
+      const parsedSets = parseInt(newSets, 10);
+      if (!isNaN(parsedSets) && parsedSets >= 1 && parsedSets <= 10) {
+        ex.sets = parsedSets;
+        delete db.extraSets[ex.id];
+      }
+      if (newReps.trim()) ex.reps = newReps.trim();
+      save();
+      render();
+    }
+    function openExPicker(mode, section = "base", index = -1) {
+      pickerState = { mode, section, index, group: "Todos" };
+      const titleEl = document.getElementById("pickerTitle");
+      if (mode === "replace") {
+        titleEl.textContent = "Substituir Exercício por...";
+      } else if (section === "opt") {
+        titleEl.textContent = "Adicionar aos Opcionais do Dia";
+      } else {
+        titleEl.textContent = "Adicionar à Base Prioritária do Dia";
+      }
+      document.getElementById("pickerSearch").value = "";
+      document.querySelectorAll("#pickerGroupChips .chip").forEach((c, i) => c.classList.toggle("active", i === 0));
+      document.getElementById("exPickerModal").classList.add("open");
+      renderExPickerList();
+    }
+    function closeExPicker() {
+      document.getElementById("exPickerModal").classList.remove("open");
+    }
+    function setPickerGroup(grp, btnEl) {
+      pickerState.group = grp;
+      document.querySelectorAll("#pickerGroupChips .chip").forEach(c => c.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
+      renderExPickerList();
+    }
+    function renderExPickerList() {
+      const q = (document.getElementById("pickerSearch")?.value || "").trim().toLowerCase();
+      const all = getAllCatalogExercises().filter(item => {
+        if (pickerState.group !== "Todos" && item.g !== pickerState.group) return false;
+        if (q && !item.n.toLowerCase().includes(q) && !item.ang.toLowerCase().includes(q) && !item.g.toLowerCase().includes(q)) return false;
+        return true;
+      });
+      document.getElementById("pickerList").innerHTML = all.map(item => {
+        const esc = item.n.replace(/'/g, "\'");
+        return `
+          <div class="pick-row">
+            <div style="min-width:0">
+              <div style="font-size:13px;font-weight:700">${item.n}</div>
+              <div class="meta">${item.g} • 📐 ${item.ang}</div>
+            </div>
+            <button class="btn-green" style="font-size:11px;padding:6px 10px;white-space:nowrap" onclick="applyPickedExercise('${esc}')">Selecionar</button>
+          </div>`;
+      }).join("") || `<div class="meta" style="padding:10px 0">Nenhum exercício encontrado.</div>`;
+    }
+    function applyPickedExercise(exName) {
+      const found = getAllCatalogExercises().find(x => x.n === exName);
+      if (!found) return;
+      ensureEditableTreinos();
+      const dObj = db.customTreinos[day];
+      if (pickerState.mode === "replace" && pickerState.index >= 0) {
+        const targetEx = dObj[pickerState.section][pickerState.index];
+        const curSlot = db.alt[targetEx.id] ?? (db.cyc - 1);
+        targetEx.a[curSlot] = { n: found.n, ang: found.ang, c: found.c };
+        if (curSlot === 0) {
+          targetEx.w = found.w || targetEx.w;
+          targetEx.rest = found.rest || targetEx.rest;
+        }
+      } else {
+        const newSlot = {
+          id: "usr_" + Date.now(),
+          sets: 3,
+          reps: found.reps || "10-12",
+          rest: found.rest || 75,
+          w: found.w || 10,
+          a: [
+            { n: found.n, ang: found.ang, c: found.c },
+            { n: found.n, ang: found.ang, c: found.c },
+            { n: found.n, ang: found.ang, c: found.c }
+          ]
+        };
+        dObj[pickerState.section].push(newSlot);
+      }
+      save();
+      closeExPicker();
+      render();
+      renderCiclos();
+    }
 
     /* VÍDEO / ANIMAÇÃO POR NOME DO EXERCÍCIO */
     function getExerciseVideo(exName) {
@@ -1076,8 +1367,9 @@
     }
 
     function setDay(i) {
-      day = i;
-      document.querySelectorAll(".tab").forEach((el, idx) => el.classList.toggle("active", idx === i));
+      const tr = getTreinos();
+      day = Math.max(0, Math.min(i, tr.length - 1));
+      renderDayTabs();
       render();
     }
     function setCycle(c) { db.cyc = c; db.alt = {}; save(); render(); renderCiclos(); }
@@ -1215,7 +1507,7 @@
     }
 
     function clearDone() {
-      const d = TREINOS[day];
+      const d = getTreinos()[day];
       [...d.base, ...d.opt, ...getDayExtras()].forEach(ex => {
         const totalSets = getTotalSets(ex);
         for (let s = 0; s < totalSets; s++) {
@@ -1230,7 +1522,7 @@
     }
 
     function finishWorkout() {
-      const d = TREINOS[day];
+      const d = getTreinos()[day];
       let setsDone = 0, vol = 0, items = [];
       [...d.base, ...d.opt, ...getDayExtras()].forEach(ex => {
         const idx = db.alt[ex.id] ?? (db.cyc - 1);
@@ -1355,8 +1647,9 @@
         try {
           const parsed = JSON.parse(ev.target.result);
           if (parsed && typeof parsed === "object") {
-            db = { cyc: 1, alt: {}, s: {}, lastPerf: {}, extraSets: {}, rests: {}, videos: {}, customEx: [], dayExtras: { "0": [], "1": [], "2": [] }, hist: [], body: [], height: 0, notes: {}, goals: {}, lastBackup: 0, sessStart: 0, sessElapsed: 0, sessRunning: false, ...parsed };
+            db = { cyc: 1, alt: {}, s: {}, lastPerf: {}, extraSets: {}, rests: {}, videos: {}, customEx: [], customTreinos: null, dayExtras: { "0": [], "1": [], "2": [] }, hist: [], body: [], height: 0, notes: {}, goals: {}, lastBackup: 0, sessStart: 0, sessElapsed: 0, sessRunning: false, ...parsed };
             save();
+            renderDayTabs();
             render();
             renderEvolucao();
             renderBody();
@@ -1382,7 +1675,7 @@
       const found = getAllCatalogExercises().find(x => x.n.toLowerCase() === (exName || "").toLowerCase());
       return found ? found.g : "";
     }
-    function renderEx(ex, i, isOpt, isExtra = false) {
+    function renderEx(ex, i, isOpt, isExtra = false, secKey = 'base') {
       const idx = db.alt[ex.id] ?? (db.cyc - 1);
       const info = ex.a[idx] || ex.a[0];
       const exGroup = getExerciseGroup(info.n);
@@ -1443,6 +1736,14 @@
               <input type="number" min="10" max="600" step="5" value="${restSec}" onchange="setRest('${ex.id}',this.value,${ex.rest});render();" />
             </label>
           </div>
+          ${(!isExtra && editRoutineMode) ? `
+            <div class="edit-toolbar">
+              <button class="btn-gold" onclick="openExPicker('replace','${secKey}',${i})">🔄 Trocar exercício</button>
+              <button onclick="editRoutinePrescription('${secKey}',${i})">⚙️ Séries/Reps</button>
+              <button onclick="moveRoutineExercise('${secKey}',${i},-1)">↑</button>
+              <button onclick="moveRoutineExercise('${secKey}',${i},1)">↓</button>
+              <button class="btn-danger" onclick="removeRoutineExercise('${secKey}',${i})">✕ Remover</button>
+            </div>` : ""}
           ${maxTip}
           ${renderMediaBlock(info.n, ex.id)}
           <div class="cue">${info.c}</div>
@@ -1455,15 +1756,16 @@
     }
 
     function render() {
-      const d = TREINOS[day];
+      const d = getTreinos()[day];
       const cycNames = ["Ciclo 1 • Base", "Ciclo 2 • Ângulos", "Ciclo 3 • 24kg Max"];
       document.getElementById("dTitle").textContent = d.t;
       document.getElementById("dSub").textContent = d.s;
       document.getElementById("cycBtn").textContent = cycNames[db.cyc - 1];
       document.getElementById("sessionNote").value = db.notes[day] || "";
 
-      document.getElementById("baseList").innerHTML = d.base.map((ex, i) => renderEx(ex, i, false, false)).join("");
-      document.getElementById("optList").innerHTML = d.opt.map((ex, i) => renderEx(ex, i, true, false)).join("");
+      document.getElementById("baseSecTitle").textContent = `Base Prioritária (${d.base.length})`;
+      document.getElementById("baseList").innerHTML = d.base.map((ex, i) => renderEx(ex, i, false, false, 'base')).join("");
+      document.getElementById("optList").innerHTML = d.opt.map((ex, i) => renderEx(ex, i, true, false, 'opt')).join("");
 
       const extras = getDayExtras();
       const extraSec = document.getElementById("extraDaySection");
@@ -1493,7 +1795,7 @@
         document.getElementById("cBtn" + c).classList.toggle("btn-gold", db.cyc === c);
       });
       let html = "";
-      TREINOS.forEach(d => {
+      getTreinos().forEach(d => {
         html += `<div class="sec-title"><span>${d.t}</span></div>`;
         [...d.base, ...d.opt].forEach(ex => {
           const cur = db.alt[ex.id] ?? (db.cyc - 1);
@@ -1726,6 +2028,7 @@
       window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
     }
     updateSessionClock();
+    renderDayTabs();
     render();
   </script>
 </body>
