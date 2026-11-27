@@ -254,6 +254,30 @@
       background: #111419; border: 1px solid #222731; border-radius: 10px;
       padding: 9px 10px; margin-top: 6px;
     }
+    .tab small {
+      display: block; font-size: 9px; margin-top: 2px; opacity: 0.85; font-weight: 700;
+    }
+    .tab.done-today {
+      border-color: rgba(16,185,129,.55);
+    }
+    .tab.active.done-today {
+      border-color: #111;
+    }
+    .preset-card {
+      background: #111419; border: 1px solid #222731; border-radius: 12px;
+      padding: 11px; margin-top: 8px;
+    }
+    .plate-pills {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+    }
+    .plate-pill {
+      background: var(--gold-bg); border: 1px solid rgba(229,169,60,.45);
+      color: var(--gold); border-radius: 8px; padding: 5px 9px;
+      font-size: 12px; font-weight: 800;
+    }
+    .btn-icon-sm {
+      padding: 5px 8px; font-size: 11px; background: var(--elev);
+    }
   </style>
 </head>
 <body>
@@ -268,6 +292,7 @@
     <div class="header-actions">
       <button class="wake-pill" id="wakeBtn" onclick="toggleWakeLock()" title="Manter tela ativa durante o treino">☀️ Tela</button>
       <button class="session-pill" id="sessTimerBtn" onclick="toggleSessionClock()" title="Toque para iniciar ou pausar o cronômetro do treino">▶ <span id="sessClock">00:00</span></button>
+      <button class="wake-pill" onclick="openCalcModal()" title="Calculadora de Anilhas e Conversor kg/lb">🧮</button>
       <button class="wake-pill" onclick="openManualModal()" title="Manual de Uso do App">?</button>
     </div>
   </header>
@@ -288,7 +313,15 @@
             <button class="badge" id="cycBtn" onclick="nextCycle()">Ciclo 1 • Base</button>
           </div>
         </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:9px;padding-top:8px;border-top:1px solid #222731;flex-wrap:wrap">
+          <span class="meta">⚙️ Halteres:</span>
+          <div style="display:flex;gap:5px;align-items:center">
+            <button id="dbModeReg" class="chip active" style="padding:4px 9px;font-size:11px" onclick="setDumbbellMode('regulavel')">Dumbbell 24kg</button>
+            <button id="dbModeConv" class="chip" style="padding:4px 9px;font-size:11px" onclick="setDumbbellMode('convencional')">Convencional (Pares)</button>
+          </div>
+        </div>
         <div id="editRoutineBar" class="edit-toolbar" style="display:none">
+          <button class="btn-gold" onclick="openPresetsModal()">📋 Fichas Prontas</button>
           <button class="btn-gold" onclick="editDayMeta()">🏷️ Renomear Dia</button>
           <button class="btn-green" onclick="addRoutineDay()">+ Novo Dia</button>
           <button class="btn-danger" onclick="removeCurrentRoutineDay()">− Excluir Dia</button>
@@ -429,8 +462,8 @@
       <div id="evoCargas">
         <div class="stat-grid" id="statsGrid"></div>
         <div class="box">
-          <strong style="font-size:15px;display:block">Recordes Pessoais (PRs)</strong>
-          <div class="meta" style="margin-bottom:8px">Maior carga registrada por exercício (24kg = teto do haltere)</div>
+          <strong style="font-size:15px;display:block">Recordes Pessoais (PRs) &amp; Evolução</strong>
+          <div class="meta" style="margin-bottom:8px">Toque em um exercício para ver a curva de carga ao longo das sessões</div>
           <div id="prsList"></div>
         </div>
         <div class="box">
@@ -499,9 +532,14 @@
       <div id="backupStatus" class="backup-notice"></div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
-        <button class="btn-gold" onclick="backup()">Exportar Backup</button>
-        <button onclick="document.getElementById('impFile').click()">Importar Backup</button>
+        <button class="btn-gold" onclick="backup()">💾 Exportar Backup Total</button>
+        <button onclick="document.getElementById('impFile').click()">📥 Importar Backup Total</button>
         <input type="file" id="impFile" accept=".json" style="display:none" onchange="importBackup(event)" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+        <button class="btn-green" onclick="exportRoutineTemplate()">📤 Compartilhar Só Ficha</button>
+        <button onclick="document.getElementById('impTemplateFile').click()">📋 Importar Ficha de Amigo</button>
+        <input type="file" id="impTemplateFile" accept=".json" style="display:none" onchange="importRoutineTemplate(event)" />
       </div>
       <div style="margin-top:8px;">
         <button style="width:100%" onclick="openManualModal()">📖 Manual de Uso do App (Guia Rápido)</button>
@@ -554,7 +592,8 @@
         <strong style="font-size:13px;color:var(--gold)">1. Executando seu Treino (Aba Treino)</strong>
         <div class="meta" style="margin-top:4px;line-height:1.45;color:#cbd5e1">
           • Toque em <b>▶ 00:00</b> no topo para iniciar ou pausar o cronômetro total da sessão.<br>
-          • Ajuste o peso (0 kg para peso corporal até 200 kg para aparelhos) e as repetições de cada série.<br>
+          • Escolha no card do treino entre <b>Dumbbell 24kg</b> (incrementos do haltere ajustável) ou <b>Convencional (Pares)</b> (1 kg a 60 kg), além de cargas até 200 kg em barras e aparelhos.<br>
+          • Use <b>🧮</b> no topo para calcular anilhas por lado da barra ou converter kg ↔ lb, e <b>📈</b> em qualquer exercício para ver sua curva de evolução.<br>
           • Ao marcar <b>✓</b> em uma série, o cronômetro de descanso inicia automaticamente com alerta sonoro/vibração ao final.<br>
           • Use <b>⇄</b> para copiar a carga/reps da série anterior ou <b>🎬 Execução</b> para ver a demonstração do movimento.<br>
           • Ao terminar, toque em <b>✓ Concluir e Salvar Treino</b> — suas cargas ficam memorizadas para a próxima sessão.
@@ -565,7 +604,8 @@
         <strong style="font-size:13px;color:var(--gold)">2. Personalizando Dias e Exercícios (Sem Código)</strong>
         <div class="meta" style="margin-top:4px;line-height:1.45;color:#cbd5e1">
           • Toque em <b>✏️ Editar Treino</b> no card do dia para liberar o modo de edição.<br>
-          • <b>+ Novo Dia / − Excluir Dia:</b> monte rotinas de 1 até 7 dias (ex.: A/B, A/B/C ou A/B/C/D) e use <b>🏷️ Renomear Dia</b> para dar o nome que quiser.<br>
+          • <b>📋 Fichas Prontas:</b> carregue modelos prontos (Full Body 3x, Upper/Lower 4x, ABC Academia) em 1 toque.<br>
+          • <b>+ Novo Dia / − Excluir Dia:</b> monte rotinas de 1 até 7 dias e use <b>🏷️ Renomear Dia</b> para dar o nome que quiser.<br>
           • Em cada exercício você pode <b>🔄 Trocar exercício</b>, mudar <b>⚙️ Séries/Reps</b>, reordenar (<b>↑ ↓</b>) ou <b>✕ Remover</b>.<br>
           • Para adicionar apenas hoje sem alterar sua ficha fixa, vá na aba <b>Exercícios</b> e toque em <b>+ Adicionar ao Dia X (Avulso)</b>.
         </div>
@@ -588,6 +628,85 @@
       </div>
 
       <button class="btn-gold" style="width:100%;margin-top:12px;padding:11px" onclick="closeManualModal()">Entendi, vamos treinar!</button>
+    </div>
+  </div>
+
+  <!-- MODAL: HISTÓRICO E CURVA POR EXERCÍCIO -->
+  <div class="modal-bg" id="exHistModal" onclick="if(event.target===this)closeExHistModal()">
+    <div class="modal-card">
+      <div class="top" style="margin-bottom:8px">
+        <div>
+          <strong id="exHistTitle" style="font-size:15px;display:block">Evolução do Exercício</strong>
+          <div class="meta" id="exHistSub">Histórico de cargas e volume</div>
+        </div>
+        <button style="padding:5px 9px;font-size:12px" onclick="closeExHistModal()">✕</button>
+      </div>
+      <div id="exHistChart" style="margin:8px 0"></div>
+      <div id="exHistList"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: MODELOS DE FICHA PRONTOS (PRESETS) -->
+  <div class="modal-bg" id="presetsModal" onclick="if(event.target===this)closePresetsModal()">
+    <div class="modal-card">
+      <div class="top" style="margin-bottom:8px">
+        <div>
+          <strong style="font-size:15px;display:block">📋 Modelos de Ficha Prontos</strong>
+          <div class="meta">Aplique um template base em 1 clique e personalize como quiser</div>
+        </div>
+        <button style="padding:5px 9px;font-size:12px" onclick="closePresetsModal()">✕</button>
+      </div>
+      <div id="presetsList"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: CALCULADORA DE ANILHAS & CONVERSOR KG/LB -->
+  <div class="modal-bg" id="calcModal" onclick="if(event.target===this)closeCalcModal()">
+    <div class="modal-card">
+      <div class="top" style="margin-bottom:8px">
+        <div>
+          <strong style="font-size:15px;display:block">🧮 Calculadora de Anilhas &amp; Conversor</strong>
+          <div class="meta">Monte a barra rapidamente ou converta libras ↔ quilos</div>
+        </div>
+        <button style="padding:5px 9px;font-size:12px" onclick="closeCalcModal()">✕</button>
+      </div>
+
+      <div class="hist-item">
+        <strong style="font-size:13px;color:var(--gold)">1. Anilhas por Lado da Barra</strong>
+        <div class="form-grid" style="margin-top:8px">
+          <div class="field">
+            <label>Carga Total Alvo (kg)</label>
+            <input type="number" step="1" id="calcTotalKg" value="60" oninput="calcPlates()" />
+          </div>
+          <div class="field">
+            <label>Peso da Barra (kg)</label>
+            <select id="calcBarKg" onchange="calcPlates()">
+              <option value="20">Barra Olímpica (20 kg)</option>
+              <option value="15">Barra Olímpica Fem. (15 kg)</option>
+              <option value="12">Barra Reta 1,80m (12 kg)</option>
+              <option value="10">Barra W / 1,50m (10 kg)</option>
+              <option value="8">Barra Curta (8 kg)</option>
+              <option value="0">Sem barra (só anilhas)</option>
+            </select>
+          </div>
+        </div>
+        <div id="calcPlatesResult" style="margin-top:10px"></div>
+      </div>
+
+      <div class="hist-item">
+        <strong style="font-size:13px;color:var(--gold)">2. Conversor Rápido (kg ↔ lb)</strong>
+        <div class="form-grid" style="margin-top:8px">
+          <div class="field">
+            <label>Quilos (kg)</label>
+            <input type="number" step="0.5" id="convKg" placeholder="Ex: 20" oninput="convertKgToLb(this.value)" />
+          </div>
+          <div class="field">
+            <label>Libras (lb)</label>
+            <input type="number" step="1" id="convLb" placeholder="Ex: 45" oninput="convertLbToKg(this.value)" />
+          </div>
+        </div>
+        <div class="meta" style="margin-top:6px">1 kg ≈ 2,2046 lb • Útil em polias e máquinas importadas.</div>
+      </div>
     </div>
   </div>
 
@@ -623,7 +742,37 @@
   </nav>
 
   <script>
-    const PESOS = [0,2.5,3.5,4.5,5.5,6.5,8,9,10,11.5,13.5,16,18,20.5,22.5,24,25,27.5,30,32.5,35,37.5,40,45,50,55,60,65,70,75,80,90,100,110,120,130,140,150,160,180,200];
+    const PESOS_REGULAVEL_24 = [0,2.5,3.5,4.5,5.5,6.5,8,9,10,11.5,13.5,16,18,20.5,22.5,24];
+    const PESOS_CONVENCIONAL = [0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,45,50,55,60];
+    const PESOS_GERAL = [0,1,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,8,9,10,11.5,12,13.5,14,16,18,20,20.5,22,22.5,24,25,26,27.5,28,30,32,32.5,34,35,36,37.5,38,40,45,50,55,60,65,70,75,80,90,100,110,120,130,140,150,160,180,200];
+
+    function snapWeightToMode(w, exEquip) {
+      const val = Number(w) || 0;
+      if (val === 0) return 0;
+      const mode = db.dumbbellMode || "regulavel";
+      let list = PESOS_GERAL;
+      if (!exEquip || exEquip === "Halteres & Banco") {
+        list = mode === "convencional" ? PESOS_CONVENCIONAL : PESOS_REGULAVEL_24;
+      }
+      let best = list[0];
+      let minDiff = Math.abs(val - best);
+      for (const p of list) {
+        const diff = Math.abs(val - p);
+        if (diff < minDiff) {
+          minDiff = diff;
+          best = p;
+        }
+      }
+      return best;
+    }
+
+    function getWeightOptionsForExercise(exEquip) {
+      const mode = db.dumbbellMode || "regulavel";
+      if (!exEquip || exEquip === "Halteres & Banco") {
+        return mode === "convencional" ? PESOS_CONVENCIONAL : PESOS_REGULAVEL_24;
+      }
+      return PESOS_GERAL;
+    }
 
     /* MAPA DE VÍDEOS/ANIMAÇÕES LIGADO PELO NOME EXATO DO EXERCÍCIO
        Coloque seus arquivos curtos (.mp4, .webp ou .gif) na pasta midia/ do GitHub ou vincule pelo app. */
@@ -989,6 +1138,7 @@
     if (!db.videos) db.videos = {};
     if (!db.customEx) db.customEx = [];
     if (!db.dayExtras) db.dayExtras = { "0": [], "1": [], "2": [] };
+    if (!db.dumbbellMode) db.dumbbellMode = "regulavel";
     if (typeof db.sessElapsed !== "number") db.sessElapsed = 0;
     if (typeof db.sessRunning !== "boolean") db.sessRunning = false;
 
@@ -1102,13 +1252,22 @@
       if (container) {
         container.innerHTML = tr.map((item, idx) => {
           const cleanSub = (item.t.split(":")[1] || item.s || "").replace(/[()]/g, "").trim();
-          const shortSub = cleanSub ? cleanSub.slice(0, 18) : `Treino ${idx + 1}`;
-          return `<div class="tab ${idx === day ? "active" : ""}" onclick="setDay(${idx})"><strong>Dia ${idx + 1}</strong><span>${shortSub}</span></div>`;
+          const shortSub = cleanSub ? cleanSub.slice(0, 16) : `Treino ${idx + 1}`;
+          const lastInfo = getLastDoneLabelForDay(item.t, idx);
+          const doneTodayCls = lastInfo === "hoje ✓" ? "done-today" : "";
+          return `<div class="tab ${idx === day ? "active" : ""} ${doneTodayCls}" onclick="setDay(${idx})"><strong>Dia ${idx + 1}</strong><span>${shortSub}</span><small>${lastInfo || "pendente"}</small></div>`;
         }).join("");
       }
       const hSub = document.getElementById("headerSub");
       if (hSub) {
-        hSub.textContent = `Casa & Academia • ${tr.length} ${tr.length === 1 ? "Dia" : "Dias"}`;
+        const dbLabel = (db.dumbbellMode === "convencional") ? "Halteres Conv." : "Dumbbell 24kg";
+        hSub.textContent = `${dbLabel} • ${tr.length} ${tr.length === 1 ? "Dia" : "Dias"}`;
+      }
+      const btnReg = document.getElementById("dbModeReg");
+      const btnConv = document.getElementById("dbModeConv");
+      if (btnReg && btnConv) {
+        btnReg.classList.toggle("active", (db.dumbbellMode || "regulavel") === "regulavel");
+        btnConv.classList.toggle("active", db.dumbbellMode === "convencional");
       }
     }
     function resetRoutineToDefault() {
@@ -1293,6 +1452,377 @@
       const src = getExerciseVideo(exName);
       const esc = exName.replace(/'/g, "\'");
       return buildMediaPlayerHTML(exName, src, `editExerciseVideo('${esc}','${exId}',false)`);
+    }
+
+    function setDumbbellMode(mode) {
+      db.dumbbellMode = mode;
+      save();
+      renderDayTabs();
+      render();
+    }
+
+    function parseBrDate(str) {
+      if (!str || typeof str !== "string") return null;
+      const parts = str.split("/");
+      if (parts.length !== 3) return null;
+      const d = parseInt(parts[0], 10), m = parseInt(parts[1], 10) - 1, y = parseInt(parts[2], 10);
+      const dt = new Date(y, m, d);
+      return isNaN(dt.getTime()) ? null : dt;
+    }
+
+    function getLastDoneLabelForDay(dayTitle, dayIdx) {
+      const prefix = `Dia ${dayIdx + 1}`;
+      const match = (db.hist || []).find(h => (h.day || "") === dayTitle || (h.day || "").startsWith(prefix));
+      if (!match || !match.date) return "";
+      const dt = parseBrDate(match.date);
+      if (!dt) return match.date.slice(0, 5);
+      const now = new Date();
+      const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const diffDays = Math.round((todayMid - dt) / 86400000);
+      if (diffDays <= 0) return "hoje ✓";
+      if (diffDays === 1) return "ontem";
+      return `há ${diffDays}d`;
+    }
+
+    function computeWeeklyStreak() {
+      if (!db.hist || !db.hist.length) return 0;
+      const getWeekKey = (dt) => {
+        const d = new Date(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate()));
+        const dayNum = d.getUTCDay() || 7;
+        d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+        const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        return `${d.getUTCFullYear()}-W${weekNo}`;
+      };
+      const weeksSet = new Set();
+      db.hist.forEach(h => {
+        const dt = parseBrDate(h.date);
+        if (dt) weeksSet.add(getWeekKey(dt));
+      });
+      let streak = 0;
+      const cursor = new Date();
+      if (!weeksSet.has(getWeekKey(cursor))) {
+        cursor.setDate(cursor.getDate() - 7);
+      }
+      while (weeksSet.has(getWeekKey(cursor))) {
+        streak++;
+        cursor.setDate(cursor.getDate() - 7);
+      }
+      return streak;
+    }
+
+    /* MODAL: HISTÓRICO E CURVA POR EXERCÍCIO */
+    function openExHistory(exName) {
+      const records = [];
+      [...(db.hist || [])].reverse().forEach(h => {
+        const found = (h.items || []).find(it => (it.name || "").toLowerCase() === exName.toLowerCase());
+        if (found) {
+          records.push({ date: h.date, maxW: Number(found.maxW) || 0, sets: found.sets || 0, day: h.day });
+        }
+      });
+      document.getElementById("exHistTitle").textContent = exName;
+      document.getElementById("exHistSub").textContent = records.length
+        ? `${records.length} ${records.length === 1 ? "sessão registrada" : "sessões registradas"}`
+        : "Nenhuma sessão registrada ainda para este exercício";
+
+      const chartEl = document.getElementById("exHistChart");
+      if (records.length >= 2) {
+        const vals = records.map(r => r.maxW);
+        const min = Math.min(...vals), max = Math.max(...vals), span = (max - min) || 1;
+        const w = 320, h = 110, padX = 24, padY = 20;
+        const pts = records.map((r, i) => ({
+          x: padX + (i / (records.length - 1)) * (w - padX * 2),
+          y: (h - padY) - ((r.maxW - min) / span) * (h - padY * 2),
+          val: r.maxW,
+          date: r.date.slice(0, 5)
+        }));
+        chartEl.innerHTML = `
+          <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;background:#111419;border-radius:10px;border:1px solid #222731;">
+            <polyline fill="none" stroke="#10b981" stroke-width="2.5" points="${pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ")}" />
+            ${pts.map(p => `
+              <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="#10b981" />
+              <text x="${p.x.toFixed(1)}" y="${(p.y - 7).toFixed(1)}" fill="#f3f4f6" font-size="9" text-anchor="middle" font-weight="bold">${p.val}kg</text>
+              <text x="${p.x.toFixed(1)}" y="${h - 3}" fill="#9ca3af" font-size="8" text-anchor="middle">${p.date}</text>
+            `).join("")}
+          </svg>`;
+      } else {
+        chartEl.innerHTML = "";
+      }
+
+      const listEl = document.getElementById("exHistList");
+      listEl.innerHTML = records.length
+        ? [...records].reverse().map(r => `
+            <div class="hist-item">
+              <div class="top">
+                <strong style="font-size:13px">${r.date}</strong>
+                <strong style="color:var(--gold);font-size:13px">${r.maxW} kg</strong>
+              </div>
+              <div class="meta" style="margin-top:2px">${r.sets} séries concluídas • ${r.day}</div>
+            </div>`).join("")
+        : `<div class="meta" style="padding:8px 0">Conclua uma sessão com este exercício para acompanhar sua curva de progressão.</div>`;
+
+      document.getElementById("exHistModal").classList.add("open");
+    }
+    function closeExHistModal() {
+      document.getElementById("exHistModal").classList.remove("open");
+    }
+
+    /* MODELOS DE FICHA PRONTOS (PRESETS) */
+    const ROUTINE_PRESETS = [
+      {
+        title: "Full Body 3x • Casa (Halteres & Banco)",
+        desc: "Estrutura original equilibrada de 3 dias para treino completo em casa.",
+        mode: "regulavel",
+        build: () => JSON.parse(JSON.stringify(TREINOS))
+      },
+      {
+        title: "Upper / Lower 4x • Casa & Barra",
+        desc: "Divisão Superior / Inferior em 4 dias (A: Superiores Peito/Costas, B: Inferiores, C: Superiores Ombros/Braços, D: Inferiores/Core).",
+        mode: "convencional",
+        build: () => {
+          const makeSlot = (id, name, sets, reps) => {
+            const found = getAllCatalogExercises().find(x => x.n === name) || getAllCatalogExercises()[0];
+            return {
+              id, sets, reps, rest: found.rest || 75, w: found.w || 12,
+              a: [
+                { n: found.n, ang: found.ang, c: found.c },
+                { n: found.n, ang: found.ang, c: found.c },
+                { n: found.n, ang: found.ang, c: found.c }
+              ]
+            };
+          };
+          return [
+            {
+              t: "Dia 1: Upper A (Peito & Costas)", s: "Superiores • Foco em Empurrar e Puxar",
+              base: [
+                makeSlot("ul1_1", "Supino Reto com Halteres", 4, "8-12"),
+                makeSlot("ul1_2", "Remada Serrote Unilateral", 4, "8-12"),
+                makeSlot("ul1_3", "Supino Inclinado 22°", 3, "10-12"),
+                makeSlot("ul1_4", "Barra Fixa Pronada (Pull-Up)", 3, "6-12"),
+                makeSlot("ul1_5", "Elevação Lateral", 3, "12-15")
+              ],
+              opt: [makeSlot("ul1_o1", "Tríceps Testa no Banco", 2, "10-12")]
+            },
+            {
+              t: "Dia 2: Lower A (Quadríceps & Core)", s: "Inferiores • Ênfase Anterior",
+              base: [
+                makeSlot("ul2_1", "Agachamento Búlgaro", 4, "8-12"),
+                makeSlot("ul2_2", "Agachamento Goblet (1 Haltere)", 3, "12-15"),
+                makeSlot("ul2_3", "Stiff / RDL com Halteres", 3, "10-12"),
+                makeSlot("ul2_4", "Panturrilha Unilateral em Pé", 3, "12-15"),
+                makeSlot("ul2_5", "Abdominal Infra no Banco", 3, "12-15")
+              ],
+              opt: []
+            },
+            {
+              t: "Dia 3: Upper B (Ombros & Braços)", s: "Superiores • Deltoides, Dorsais e Braços",
+              base: [
+                makeSlot("ul3_1", "Desenvolvimento de Ombros", 4, "8-12"),
+                makeSlot("ul3_2", "Remada Peito Apoiado Bilateral", 4, "10-12"),
+                makeSlot("ul3_3", "Flexão Declinada (Pés no Banco)", 3, "10-15"),
+                makeSlot("ul3_4", "Crucifixo Invertido Peito Apoiado", 3, "12-15"),
+                makeSlot("ul3_5", "Rosca Martelo Alternada", 3, "10-12")
+              ],
+              opt: [makeSlot("ul3_o1", "Tríceps Francês Unilateral", 2, "10-12")]
+            },
+            {
+              t: "Dia 4: Lower B (Posterior & Glúteos)", s: "Inferiores • Cadeia Posterior",
+              base: [
+                makeSlot("ul4_1", "Stiff / RDL com Halteres", 4, "8-12"),
+                makeSlot("ul4_2", "Elevação Pélvica no Banco", 4, "12-15"),
+                makeSlot("ul4_3", "Afundo Estático com Halteres", 3, "10-12"),
+                makeSlot("ul4_4", "Panturrilha Sentado com Carga", 3, "15-20"),
+                makeSlot("ul4_5", "Prancha Abdominal", 3, "40s")
+              ],
+              opt: []
+            }
+          ];
+        }
+      },
+      {
+        title: "ABC 3x • Academia Completa (Aparelhos & Polias)",
+        desc: "Divisão clássica A (Peito/Ombro/Tríceps), B (Costas/Bíceps) e C (Pernas/Core) usando máquinas e polias.",
+        mode: "convencional",
+        build: () => {
+          const makeSlot = (id, name, sets, reps) => {
+            const found = getAllCatalogExercises().find(x => x.n === name) || getAllCatalogExercises()[0];
+            return {
+              id, sets, reps, rest: found.rest || 75, w: found.w || 20,
+              a: [
+                { n: found.n, ang: found.ang, c: found.c },
+                { n: found.n, ang: found.ang, c: found.c },
+                { n: found.n, ang: found.ang, c: found.c }
+              ]
+            };
+          };
+          return [
+            {
+              t: "Dia 1: Treino A (Peito, Ombro & Tríceps)", s: "Empurrar • Máquinas & Polias",
+              base: [
+                makeSlot("ac1_1", "Supino Máquina Articulado", 4, "8-12"),
+                makeSlot("ac1_2", "Crucifixo Máquina (Peck Deck)", 3, "10-15"),
+                makeSlot("ac1_3", "Desenvolvimento na Máquina", 3, "8-12"),
+                makeSlot("ac1_4", "Elevação Lateral na Polia Baixa", 3, "12-15"),
+                makeSlot("ac1_5", "Tríceps Pulley (Barra Reta / Corda)", 3, "10-15")
+              ],
+              opt: [makeSlot("ac1_o1", "Tríceps Corda na Polia Alta", 2, "12-15")]
+            },
+            {
+              t: "Dia 2: Treino B (Costas, Posterior Ombro & Bíceps)", s: "Puxar • Polias & Remadas",
+              base: [
+                makeSlot("ac2_1", "Puxada Frontal na Polia (Pulley)", 4, "8-12"),
+                makeSlot("ac2_2", "Remada Baixa Sentado (Triângulo)", 4, "10-12"),
+                makeSlot("ac2_3", "Remada Articulada na Máquina", 3, "10-12"),
+                makeSlot("ac2_4", "Crucifixo Invertido Peito Apoiado", 3, "12-15"),
+                makeSlot("ac2_5", "Rosca Direta na Polia Baixa", 3, "10-12")
+              ],
+              opt: [makeSlot("ac2_o1", "Rosca Martelo Alternada", 2, "10-12")]
+            },
+            {
+              t: "Dia 3: Treino C (Pernas Completas & Abdômen)", s: "Inferiores & Core • Academia",
+              base: [
+                makeSlot("ac3_1", "Leg Press 45°", 4, "10-15"),
+                makeSlot("ac3_2", "Cadeira Extensora", 3, "12-15"),
+                makeSlot("ac3_3", "Mesa Flexora (Deitado)", 3, "10-15"),
+                makeSlot("ac3_4", "Cadeira Abdutora", 3, "12-15"),
+                makeSlot("ac3_5", "Panturrilha no Leg Press / Máquina", 4, "12-20"),
+                makeSlot("ac3_6", "Abdominal Crunch na Polia Alta", 3, "12-15")
+              ],
+              opt: []
+            }
+          ];
+        }
+      }
+    ];
+
+    function openPresetsModal() {
+      document.getElementById("presetsList").innerHTML = ROUTINE_PRESETS.map((p, idx) => `
+        <div class="preset-card">
+          <strong style="font-size:14px;display:block;color:var(--gold)">${p.title}</strong>
+          <div class="meta" style="margin:4px 0 10px;line-height:1.4;color:#cbd5e1">${p.desc}</div>
+          <button class="btn-green" style="width:100%;padding:9px;font-size:12px" onclick="applyPreset(${idx})">Aplicar este Modelo</button>
+        </div>
+      `).join("");
+      document.getElementById("presetsModal").classList.add("open");
+    }
+    function closePresetsModal() {
+      document.getElementById("presetsModal").classList.remove("open");
+    }
+    function applyPreset(idx) {
+      const preset = ROUTINE_PRESETS[idx];
+      if (!preset) return;
+      if (!confirm(`Substituir sua estrutura atual de dias pelo modelo "${preset.title}"? (Seu histórico de treinos e peso corporal será mantido).`)) return;
+      db.customTreinos = preset.build();
+      db.dumbbellMode = preset.mode || db.dumbbellMode;
+      day = 0;
+      save();
+      closePresetsModal();
+      renderDayTabs();
+      render();
+      renderCiclos();
+    }
+
+    /* COMPARTILHAR / IMPORTAR APENAS A FICHA (SEM DADOS PESSOAIS) */
+    function exportRoutineTemplate() {
+      const payload = {
+        type: "ta_pago_routine_template",
+        exportedAt: new Date().toISOString(),
+        dumbbellMode: db.dumbbellMode || "regulavel",
+        customTreinos: JSON.parse(JSON.stringify(getTreinos())),
+        customEx: db.customEx || []
+      };
+      const b = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(b);
+      a.download = "ficha_ta_pago.json";
+      a.click();
+    }
+
+    function importRoutineTemplate(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          const treinosIn = parsed?.customTreinos;
+          if (!Array.isArray(treinosIn) || treinosIn.length < 1) {
+            alert("Este arquivo não contém uma ficha válida.");
+            return;
+          }
+          if (!confirm(`Importar esta ficha (${treinosIn.length} dias)? Seu histórico de treinos e medições corporais NÃO será apagado.`)) return;
+          db.customTreinos = treinosIn;
+          if (parsed.dumbbellMode) db.dumbbellMode = parsed.dumbbellMode;
+          if (Array.isArray(parsed.customEx) && parsed.customEx.length) {
+            const existingNames = new Set((db.customEx || []).map(x => x.n.toLowerCase()));
+            parsed.customEx.forEach(item => {
+              if (!existingNames.has((item.n || "").toLowerCase())) {
+                db.customEx.push(item);
+              }
+            });
+          }
+          day = 0;
+          save();
+          renderDayTabs();
+          render();
+          renderCiclos();
+          alert("Ficha importada com sucesso!");
+        } catch (err) {
+          alert("Arquivo JSON de ficha inválido.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    /* CALCULADORA DE ANILHAS & CONVERSOR KG/LB */
+    function openCalcModal() {
+      document.getElementById("calcModal").classList.add("open");
+      calcPlates();
+    }
+    function closeCalcModal() {
+      document.getElementById("calcModal").classList.remove("open");
+    }
+    function calcPlates() {
+      const total = parseFloat(document.getElementById("calcTotalKg")?.value) || 0;
+      const bar = parseFloat(document.getElementById("calcBarKg")?.value) || 0;
+      const resEl = document.getElementById("calcPlatesResult");
+      if (!resEl) return;
+      if (total < bar) {
+        resEl.innerHTML = `<div class="meta" style="color:#fca5a5">A carga total (${total}kg) é menor que o peso da barra (${bar}kg).</div>`;
+        return;
+      }
+      const perSide = (total - bar) / 2;
+      if (perSide === 0) {
+        resEl.innerHTML = `<div class="meta">Apenas a barra (${bar} kg), sem anilhas.</div>`;
+        return;
+      }
+      const available = [25, 20, 15, 10, 5, 3, 2.5, 2, 1.25, 1];
+      let rem = Math.round(perSide * 100) / 100;
+      const plates = [];
+      for (const p of available) {
+        while (rem >= p - 0.001) {
+          plates.push(p);
+          rem = Math.round((rem - p) * 100) / 100;
+        }
+      }
+      resEl.innerHTML = `
+        <div class="meta">Coloque <strong style="color:var(--text)">${perSide} kg</strong> de cada lado da barra:</div>
+        <div class="plate-pills">
+          ${plates.map(p => `<span class="plate-pill">${p} kg</span>`).join("")}
+          ${rem > 0 ? `<span class="tag">+ ${rem} kg ajuste</span>` : ""}
+        </div>`;
+    }
+    function convertKgToLb(val) {
+      const kg = parseFloat(val);
+      const lbEl = document.getElementById("convLb");
+      if (!lbEl) return;
+      lbEl.value = !isNaN(kg) ? (kg * 2.20462).toFixed(1) : "";
+    }
+    function convertLbToKg(val) {
+      const lb = parseFloat(val);
+      const kgEl = document.getElementById("convKg");
+      if (!kgEl) return;
+      kgEl.value = !isNaN(lb) ? (lb / 2.20462).toFixed(1) : "";
     }
 
     function openManualModal() {
@@ -1858,12 +2388,15 @@
       const hasVideo = Boolean(getExerciseVideo(info.n));
       const escapedName = info.n.replace(/'/g, "\'");
 
+      const allowedPesos = getWeightOptionsForExercise(exEquip);
       let sets = "";
       let hitMax24 = false;
       for (let s = 0; s < totalSets; s++) {
-        const st = db.s[ex.id + "_" + s] || getDefaultSetState(ex, s, defRepsNum);
-        if (Number(st.w) === 24 && (!exEquip || exEquip === "Halteres & Banco")) hitMax24 = true;
-        const opts = PESOS.map(p => `<option value="${p}" ${Number(st.w)===p?"selected":""}>${p} kg</option>`).join("");
+        const rawSt = db.s[ex.id + "_" + s] || getDefaultSetState(ex, s, defRepsNum);
+        const curW = snapWeightToMode(rawSt.w, exEquip);
+        const st = { ...rawSt, w: curW };
+        if (curW === 24 && (!exEquip || exEquip === "Halteres & Banco") && (db.dumbbellMode || "regulavel") === "regulavel") hitMax24 = true;
+        const opts = allowedPesos.map(p => `<option value="${p}" ${curW===p?"selected":""}>${p} kg</option>`).join("");
         const quickBtn = s > 0
           ? `<button class="btn-mini" title="Copiar série anterior" onclick="copyPrevSet('${ex.id}',${s},${ex.w},${defRepsNum})">⇄</button>`
           : `<button class="btn-mini" title="+1 repetição" onclick="bumpRep('${ex.id}',${s},${ex.w},${defRepsNum},1)">+1</button>`;
@@ -1895,6 +2428,7 @@
           <div class="top">
             <span class="meta">#${i+1} • ${totalSets}×${ex.reps}</span>
             <div class="ex-actions">
+              <button class="btn-icon-sm" title="Histórico e curva de carga deste exercício" onclick="openExHistory('${escapedName}')">📈</button>
               ${mediaBtn}
               ${rightAction}
             </div>
@@ -1987,10 +2521,12 @@
       const totalSeries = db.hist.reduce((acc, h) => acc + (h.sets || 0), 0);
       const totalVol = db.hist.reduce((acc, h) => acc + (h.vol || 0), 0);
 
+      const weekStreak = computeWeeklyStreak();
       document.getElementById("statsGrid").innerHTML = `
         <div class="stat-card"><div class="meta">TREINOS CONCLUÍDOS</div><div class="stat-val">${totalTreinos}</div></div>
+        <div class="stat-card"><div class="meta">SEQUÊNCIA SEMANAL</div><div class="stat-val">${weekStreak} ${weekStreak === 1 ? "sem" : "sems"} 🔥</div></div>
         <div class="stat-card"><div class="meta">SÉRIES TOTAIS</div><div class="stat-val">${totalSeries}</div></div>
-        <div class="stat-card" style="grid-column:span 2"><div class="meta">VOLUME ACUMULADO</div><div class="stat-val">${totalVol.toLocaleString("pt-BR")} kg</div></div>
+        <div class="stat-card"><div class="meta">VOLUME ACUMULADO</div><div class="stat-val">${totalVol.toLocaleString("pt-BR")} kg</div></div>
       `;
 
       const prs = {};
@@ -2003,9 +2539,11 @@
       const prKeys = Object.keys(prs);
       document.getElementById("prsList").innerHTML = prKeys.length
         ? prKeys.map(k => {
-            const isMax = Number(prs[k]) >= 24;
-            return `<div class="top" style="padding:6px 0;border-bottom:1px solid #222731;font-size:13px;">
-              <span>${k}</span>
+            const escK = k.replace(/'/g, "\'");
+            const eq = getExerciseEquip(k);
+            const isMax = Number(prs[k]) === 24 && (!eq || eq === "Halteres & Banco") && (db.dumbbellMode || "regulavel") === "regulavel";
+            return `<div class="top" style="padding:7px 0;border-bottom:1px solid #222731;font-size:13px;cursor:pointer" onclick="openExHistory('${escK}')">
+              <span>${k} <span class="meta">📈</span></span>
               <strong style="color:${isMax ? '#fca5a5' : 'var(--gold)'}">${prs[k]} kg ${isMax ? '🔥' : ''}</strong>
             </div>`;
           }).join("")
